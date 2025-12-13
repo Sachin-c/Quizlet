@@ -10,7 +10,9 @@ export type Category =
   | "Animals"
   | "Travel"
   | "Family"
-  | "Work";
+  | "Work"
+  | "Clothing"
+  | "Places";
 
 export interface VocabularyWord {
   id: string;
