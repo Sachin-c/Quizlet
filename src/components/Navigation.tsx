@@ -4,14 +4,16 @@ interface NavigationProps {
   onShowStats: () => void;
   onShowStudy: () => void;
   onShowQuiz: () => void;
+  onShowVerbs: () => void;
   onShowSettings: () => void;
-  activeView: "study" | "quiz" | "stats" | "settings";
+  activeView: "study" | "quiz" | "verbs" | "stats" | "settings";
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
   onShowStats,
   onShowStudy,
   onShowQuiz,
+  onShowVerbs,
   onShowSettings,
   activeView,
 }) => {
@@ -59,6 +61,16 @@ export const Navigation: React.FC<NavigationProps> = ({
               }`}
             >
               📝 Quiz
+            </button>
+            <button
+              onClick={onShowVerbs}
+              className={`px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 ${
+                isActive("verbs")
+                  ? "bg-white text-purple-600 shadow-lg"
+                  : "text-white hover:bg-white/20"
+              }`}
+            >
+              🔤 Verbs
             </button>
             <button
               onClick={onShowStats}
@@ -121,6 +133,19 @@ export const Navigation: React.FC<NavigationProps> = ({
               }`}
             >
               📝 Quiz
+            </button>
+            <button
+              onClick={() => {
+                onShowVerbs();
+                setIsOpen(false);
+              }}
+              className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all ${
+                isActive("verbs")
+                  ? "bg-white text-purple-600"
+                  : "text-white hover:bg-white/20"
+              }`}
+            >
+              🔤 Verbs
             </button>
             <button
               onClick={() => {

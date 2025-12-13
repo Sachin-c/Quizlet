@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { VocabularyWord } from "../types";
 import { getFrenchPhonetics } from "../utils/phonetics";
+import { VerbConjugation } from "./VerbConjugation";
 
 interface FlashcardProps {
   word: VocabularyWord;
@@ -78,6 +79,11 @@ export const Flashcard: React.FC<FlashcardProps> = ({
             Click to {isFlipped ? "see French" : "reveal English"}
           </p>
         </div>
+
+        {/* Verb Conjugations */}
+        {word.isVerb && !isFlipped && (
+          <VerbConjugation conjugations={word.conjugations} />
+        )}
       </div>
 
       {/* Action Buttons */}

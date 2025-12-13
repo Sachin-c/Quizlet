@@ -12,7 +12,16 @@ export type Category =
   | "Family"
   | "Work"
   | "Clothing"
-  | "Places";
+  | "Places"
+  | "Verbs";
+
+export interface Conjugation {
+  pronoun: string; // je, tu, il/elle, nous, vous, ils/elles
+  present: string;
+  presentPhonetics?: string; // Romanized phonetics for the conjugation
+  past?: string;
+  future?: string;
+}
 
 export interface VocabularyWord {
   id: string;
@@ -24,6 +33,8 @@ export interface VocabularyWord {
   category: Category;
   cefr: CEFRLevel;
   createdAt: number;
+  isVerb?: boolean; // Whether this word is a verb
+  conjugations?: Conjugation[]; // Verb conjugations if isVerb is true
 }
 
 export interface CardProgress {
