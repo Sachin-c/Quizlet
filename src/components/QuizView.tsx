@@ -24,35 +24,37 @@ export const QuizView: React.FC<QuizViewProps> = ({ allWords }) => {
   useEffect(() => {
     if (filteredWords.length < 2) return;
 
-    const newQuestions: QuizQuestion[] = filteredWords
-      .slice(0, Math.min(10, filteredWords.length))
-      .map((word) => {
-        // Get wrong answers from same category for increased complexity
-        let wrongAnswers = filteredWords
-          .filter((w) => w.id !== word.id && w.category === word.category)
+    // Shuffle filtered words and pick random 10
+    const shuffled = [...filteredWords].sort(() => Math.random() - 0.5);
+    const selectedWords = shuffled.slice(0, Math.min(10, shuffled.length));
+
+    const newQuestions: QuizQuestion[] = selectedWords.map((word) => {
+      // Get wrong answers from same category for increased complexity
+      let wrongAnswers = filteredWords
+        .filter((w) => w.id !== word.id && w.category === word.category)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+
+      // If not enough same-category words, fill with random words
+      if (wrongAnswers.length < 3) {
+        const remaining = 3 - wrongAnswers.length;
+        const additionalAnswers = filteredWords
+          .filter(
+            (w) =>
+              w.id !== word.id &&
+              w.category !== word.category &&
+              !wrongAnswers.includes(w)
+          )
           .sort(() => Math.random() - 0.5)
-          .slice(0, 3);
+          .slice(0, remaining);
+        wrongAnswers = [...wrongAnswers, ...additionalAnswers];
+      }
 
-        // If not enough same-category words, fill with random words
-        if (wrongAnswers.length < 3) {
-          const remaining = 3 - wrongAnswers.length;
-          const additionalAnswers = filteredWords
-            .filter(
-              (w) =>
-                w.id !== word.id &&
-                w.category !== word.category &&
-                !wrongAnswers.includes(w)
-            )
-            .sort(() => Math.random() - 0.5)
-            .slice(0, remaining);
-          wrongAnswers = [...wrongAnswers, ...additionalAnswers];
-        }
+      // Shuffle options
+      const options = [word, ...wrongAnswers].sort(() => Math.random() - 0.5);
 
-        // Shuffle options
-        const options = [word, ...wrongAnswers].sort(() => Math.random() - 0.5);
-
-        return { correct: word, options };
-      });
+      return { correct: word, options };
+    });
 
     // setQuestions in effect is acceptable for quiz initialization
     setQuestions(newQuestions);

@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { VocabularyWord } from "../types";
+import { getImageForWord } from "../utils/imageService";
 
 interface FlashcardProps {
   word: VocabularyWord;
@@ -15,6 +16,22 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   isLoading = false,
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string>(word.imageUrl || "");
+
+  // Fetch stock image on component mount
+  useEffect(() => {
+    if (word.imageUrl && word.imageUrl.length > 2) {
+      // Already has a real image URL
+      return;
+    }
+
+    const fetchImage = async () => {
+      const url = await getImageForWord(word.english, word.imageUrl || "📷");
+      setImageUrl(url);
+    };
+
+    fetchImage();
+  }, [word]);
 
   const speak = (text: string, lang: string = "fr-FR") => {
     const utterance = new SpeechSynthesisUtterance(text);
@@ -42,8 +59,25 @@ export const Flashcard: React.FC<FlashcardProps> = ({
         onClick={() => setIsFlipped(!isFlipped)}
       >
         {/* Image */}
-        {word.imageUrl && (
-          <div className="text-9xl mb-8 animate-scale-in">{word.imageUrl}</div>
+        {imageUrl && (
+          <div className="mb-8 animate-scale-in w-full flex justify-center">
+            {imageUrl.startsWith("http") ? (
+              // Stock photo from Unsplash
+              <img
+                src={imageUrl}
+                alt={word.english}
+                className="w-64 h-64 object-cover rounded-lg shadow-lg"
+                onError={(e) => {
+                  // Fallback to emoji if image fails to load
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                  setImageUrl(word.imageUrl || "📷");
+                }}
+              />
+            ) : (
+              // Emoji fallback
+              <div className="text-9xl">{imageUrl}</div>
+            )}
+          </div>
         )}
 
         <div className="flex flex-col items-center justify-center w-full">
