@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { VocabularyWord } from "../types";
-import { getImageForWord } from "../utils/imageService";
+import { getFrenchPhonetics } from "../utils/phonetics";
 
 interface FlashcardProps {
   word: VocabularyWord;
@@ -16,20 +16,6 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   isLoading = false,
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string | undefined>(
-    word.imageUrl || ""
-  );
-
-  useEffect(() => {
-    const fetchImage = async () => {
-      const url = await getImageForWord(word.english, word.imageUrl);
-      console.log("herer");
-
-      setImageUrl(url);
-    };
-
-    fetchImage();
-  }, [word]);
 
   const speak = (text: string, lang: string = "fr-FR") => {
     const utterance = new SpeechSynthesisUtterance(text);
@@ -56,34 +42,22 @@ export const Flashcard: React.FC<FlashcardProps> = ({
         className="w-full max-w-3xl bg-white rounded-2xl cursor-pointer transition-all duration-300 p-12 min-h-96 flex flex-col items-center justify-center border border-gray-100 shadow-lg hover:shadow-2xl"
         onClick={() => setIsFlipped(!isFlipped)}
       >
-        {/* Image */}
-        {imageUrl && (
-          <div className="mb-8 animate-scale-in w-full flex justify-center">
-            {imageUrl.startsWith("http") ? (
-              // Stock photo from Unsplash
-              <img
-                src={imageUrl}
-                alt={word.english}
-                className="w-64 h-64 object-cover rounded-lg shadow-lg"
-                onError={(e) => {
-                  // Fallback to book emoji if image fails to load
-                  (e.currentTarget as HTMLImageElement).style.display = "none";
-                  setImageUrl(word.imageUrl || "📚");
-                }}
-              />
-            ) : (
-              // Emoji fallback
-              <div className="text-9xl">{imageUrl}</div>
-            )}
-          </div>
+        {/* Emoji */}
+        {word.imageUrl && (
+          <div className="mb-8 animate-scale-in text-9xl">{word.imageUrl}</div>
         )}
 
         <div className="flex flex-col items-center justify-center w-full">
           <p className="text-sm font-semibold text-gray-400 mb-4 tracking-wide uppercase">
             {isFlipped ? "✓ English" : "• Français"}
           </p>
-          <p className="text-6xl font-black text-gray-900 text-center mb-8 break-words">
+          <p className="text-6xl font-black text-gray-900 text-center mb-2 break-words">
             {isFlipped ? word.english : word.french}
+          </p>
+
+          {/* Phonetics */}
+          <p className="text-lg text-gray-500 italic mb-4">
+            /{isFlipped ? word.english : getFrenchPhonetics(word.french)}/
           </p>
 
           {/* Speaker Button */}

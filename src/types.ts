@@ -19,6 +19,7 @@ export interface VocabularyWord {
   french: string;
   english: string;
   pronunciation?: string;
+  frenchPhonetics?: string; // Romanized phonetics for French (e.g., "lee-vruh")
   imageUrl?: string; // Optional image URL or emoji
   category: Category;
   cefr: CEFRLevel;
