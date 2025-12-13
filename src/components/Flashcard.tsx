@@ -16,17 +16,15 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   isLoading = false,
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string>(word.imageUrl || "");
+  const [imageUrl, setImageUrl] = useState<string | undefined>(
+    word.imageUrl || ""
+  );
 
-  // Fetch stock image on component mount
   useEffect(() => {
-    if (word.imageUrl && word.imageUrl.length > 2) {
-      // Already has a real image URL
-      return;
-    }
-
     const fetchImage = async () => {
-      const url = await getImageForWord(word.english, word.imageUrl || "📷");
+      const url = await getImageForWord(word.english, word.imageUrl);
+      console.log("herer");
+
       setImageUrl(url);
     };
 
@@ -68,9 +66,9 @@ export const Flashcard: React.FC<FlashcardProps> = ({
                 alt={word.english}
                 className="w-64 h-64 object-cover rounded-lg shadow-lg"
                 onError={(e) => {
-                  // Fallback to emoji if image fails to load
+                  // Fallback to book emoji if image fails to load
                   (e.currentTarget as HTMLImageElement).style.display = "none";
-                  setImageUrl(word.imageUrl || "📷");
+                  setImageUrl(word.imageUrl || "📚");
                 }}
               />
             ) : (

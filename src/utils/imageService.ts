@@ -1,14 +1,13 @@
-// Image service - currently uses emojis
-// Can be extended with real image APIs in the future
+// Image service - uses emojis for vocabulary images
 
 /**
  * Get image for a vocabulary word
- * Currently returns emoji - no external API to avoid auth issues
+ * Returns emoji
  */
 export const getImageForWord = async (
   _word: string,
-  emoji: string
-): Promise<string> => {
+  emoji: string | undefined
+): Promise<string | undefined> => {
   return emoji;
 };
 
@@ -16,7 +15,7 @@ export const getImageForWord = async (
  * Preload images (placeholder)
  */
 export const preloadImagesForWords = () => {
-  // Placeholder for future image preloading
+  // Placeholder
 };
 
 /**
