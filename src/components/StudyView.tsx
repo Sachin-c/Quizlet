@@ -58,7 +58,36 @@ export const StudyView: React.FC<StudyViewProps> = ({ allWords }) => {
 
     setCurrentIndex((currentIndex + 1) % filteredWords.length);
   };
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore when typing in inputs/selects
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLSelectElement
+      ) {
+        return;
+      }
 
+      if (e.key === "ArrowRight") {
+        setCurrentIndex((prev) => (prev + 1) % filteredWords.length);
+      }
+
+      if (e.key === "ArrowLeft") {
+        setCurrentIndex(
+          (prev) => (prev - 1 + filteredWords.length) % filteredWords.length
+        );
+      }
+
+      if (e.key === " ") {
+        e.preventDefault(); // prevent page scroll
+        // Optional: flip card OR mark correct
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [filteredWords.length]);
   if (filteredWords.length === 0) {
     return (
       <div className="max-w-4xl mx-auto space-y-8">
@@ -113,6 +142,39 @@ export const StudyView: React.FC<StudyViewProps> = ({ allWords }) => {
             isLoading={false}
           />
         )}
+      </div>
+      <div className="flex justify-center mt-6">
+        <div className="flex gap-3 w-full max-w-3xl">
+          <button
+            onClick={() =>
+              setCurrentIndex(
+                (prev) =>
+                  (prev - 1 + filteredWords.length) % filteredWords.length
+              )
+            }
+            className="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-all active:scale-95"
+          >
+            ← Previous
+          </button>
+
+          <button
+            onClick={() =>
+              setCurrentIndex(Math.floor(Math.random() * filteredWords.length))
+            }
+            className="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-all active:scale-95"
+          >
+            🔀 Random
+          </button>
+
+          <button
+            onClick={() =>
+              setCurrentIndex((prev) => (prev + 1) % filteredWords.length)
+            }
+            className="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-all active:scale-95"
+          >
+            Next →
+          </button>
+        </div>
       </div>
     </div>
   );

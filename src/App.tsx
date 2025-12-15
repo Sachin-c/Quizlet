@@ -7,7 +7,7 @@ import { QuizView } from "./components/QuizView";
 import { VerbStudy } from "./components/VerbStudy";
 import { ProgressView } from "./components/ProgressView";
 import { Settings } from "./components/Settings";
-import { vocabularyData } from "./data/vocabulary";
+import { vocabularyData, commonVerbs } from "./data/vocabulary";
 import { StorageManager } from "./utils/storage";
 
 type ViewType = "study" | "quiz" | "verbs" | "stats" | "settings";
@@ -66,7 +66,7 @@ function App() {
           <QuizView key={`quiz-${refreshKey}`} allWords={filteredVocabulary} />
         )}
         {currentView === "verbs" && (
-          <VerbStudy key={`verbs-${refreshKey}`} allWords={vocabularyData} />
+          <VerbStudy key={`verbs-${refreshKey}`} allWords={commonVerbs} />
         )}
         {currentView === "stats" && (
           <ProgressView key={`stats-${refreshKey}`} allWords={vocabularyData} />

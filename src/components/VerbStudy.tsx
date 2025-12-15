@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { VocabularyWord } from "../types";
 import { Flashcard } from "./Flashcard";
 import { SearchBar } from "./SearchBar";
@@ -26,26 +26,6 @@ export const VerbStudy: React.FC<VerbStudyProps> = ({ allWords }) => {
   // Reset index when search changes or if out of bounds
   const safeIndex = Math.min(currentIndex, Math.max(0, verbs.length - 1));
 
-  if (verbs.length === 0) {
-    return (
-      <>
-        <SearchBar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          resultCount={verbs.length}
-        />
-        <div className="flex items-center justify-center min-h-96">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-gray-700 mb-2">
-              No verbs yet
-            </p>
-            <p className="text-gray-500">Check back soon!</p>
-          </div>
-        </div>
-      </>
-    );
-  }
-
   const currentVerb = verbs[safeIndex];
 
   const handleCorrect = () => {
@@ -71,40 +51,69 @@ export const VerbStudy: React.FC<VerbStudyProps> = ({ allWords }) => {
     StorageManager.saveProgress(withStats);
     setCurrentIndex((prev) => (prev + 1) % verbs.length);
   };
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore when typing in inputs/selects
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+
+      if (e.key === "ArrowRight") {
+        setCurrentIndex((prev) => (prev + 1) % verbs.length);
+      }
+
+      if (e.key === "ArrowLeft") {
+        setCurrentIndex((prev) => (prev - 1 + verbs.length) % verbs.length);
+      }
+
+      if (e.key === " ") {
+        e.preventDefault(); // prevent page scroll
+        // Optional: flip card OR mark correct
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [verbs.length]);
 
   return (
-    <div className="flex flex-col items-center gap-8">
+    <div className="flex flex-col items-center gap-4">
       {/* Search Bar */}
       <SearchBar
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         resultCount={verbs.length}
       />
+      {verbs.length > 0 && (
+        <>
+          <div className="text-center">
+            <h1 className="text-4xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+              Verb Conjugations
+            </h1>
+            <p className="text-gray-600">
+              Master French verb conjugations • {currentIndex + 1} of{" "}
+              {verbs.length}
+            </p>
+          </div>
 
-      {/* Header */}
-      <div className="text-center">
-        <h1 className="text-4xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-          Verb Conjugations
-        </h1>
-        <p className="text-gray-600">
-          Master French verb conjugations • {currentIndex + 1} of {verbs.length}
-        </p>
-      </div>
+          <div className="w-full max-w-3xl bg-gray-200 rounded-full h-2 overflow-hidden">
+            <div
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 h-full transition-all duration-300"
+              style={{ width: `${((currentIndex + 1) / verbs.length) * 100}%` }}
+            />
+          </div>
 
-      {/* Progress Bar */}
-      <div className="w-full max-w-3xl bg-gray-200 rounded-full h-2 overflow-hidden">
-        <div
-          className="bg-gradient-to-r from-indigo-600 to-purple-600 h-full transition-all duration-300"
-          style={{ width: `${((currentIndex + 1) / verbs.length) * 100}%` }}
-        />
-      </div>
-
-      {/* Flashcard */}
-      <Flashcard
-        word={currentVerb}
-        onCorrect={handleCorrect}
-        onIncorrect={handleIncorrect}
-      />
+          <Flashcard
+            word={currentVerb}
+            onCorrect={handleCorrect}
+            onIncorrect={handleIncorrect}
+          />
+        </>
+      )}
 
       {/* Navigation Buttons */}
       <div className="flex gap-3 w-full max-w-3xl">
