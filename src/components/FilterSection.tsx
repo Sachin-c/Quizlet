@@ -49,7 +49,11 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
     setter: (s: Set<T>) => void
   ) => {
     const next = new Set(set);
-    next.has(value) ? next.delete(value) : next.add(value);
+    if (next.has(value)) {
+      next.delete(value);
+    } else {
+      next.add(value);
+    }
     setter(next);
   };
 
@@ -59,9 +63,9 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 space-y-4 text-sm">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3 text-sm">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-2">
         <h3 className="text-xs font-bold uppercase tracking-wide text-gray-600">
           Filters
         </h3>
@@ -75,48 +79,43 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
         )}
       </div>
 
-      {/* CEFR */}
-      <div>
-        <p className="text-xs font-semibold text-gray-500 mb-2">Level</p>
-        <div className="flex flex-wrap gap-2">
-          {levels.map((level) => (
-            <button
-              key={level}
-              onClick={() =>
-                toggleSet(level, selectedLevels, setSelectedLevels)
-              }
-              className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-colors ${
-                selectedLevels.has(level)
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {level}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Filters Row */}
+      <div className="flex items-center gap-2 flex-wrap text-[10px]">
+        {/* CEFR */}
+        <span className="font-semibold text-gray-500">Lvl:</span>
+        {levels.map((level) => (
+          <button
+            key={level}
+            onClick={() => toggleSet(level, selectedLevels, setSelectedLevels)}
+            className={`px-1.5 py-0.5 rounded text-white font-semibold text-[10px] transition-colors ${
+              selectedLevels.has(level)
+                ? "bg-gradient-to-r from-indigo-600 to-purple-600"
+                : "bg-gray-400 text-gray-700 hover:bg-gray-600"
+            }`}
+          >
+            {level}
+          </button>
+        ))}
 
-      {/* Categories */}
-      <div>
-        <p className="text-xs font-semibold text-gray-500 mb-2">Category</p>
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() =>
-                toggleSet(category, selectedCategories, setSelectedCategories)
-              }
-              className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-colors ${
-                selectedCategories.has(category)
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
+        <span className="text-gray-300">|</span>
+
+        {/* Categories */}
+        <span className="font-semibold text-gray-500">Cat:</span>
+        {categories.map((c) => (
+          <button
+            key={c}
+            onClick={() =>
+              toggleSet(c, selectedCategories, setSelectedCategories)
+            }
+            className={`px-1.5 py-0.5 rounded text-white font-semibold text-[10px] transition-colors ${
+              selectedCategories.has(c)
+                ? "bg-gradient-to-r from-indigo-600 to-purple-600"
+                : "bg-gray-400 text-gray-700 hover:bg-gray-500"
+            }`}
+          >
+            {c}
+          </button>
+        ))}
       </div>
     </div>
   );

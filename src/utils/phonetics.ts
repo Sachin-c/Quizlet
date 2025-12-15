@@ -66,9 +66,9 @@ export function generateFrenchPhonetics(word: string): string {
 
   // Clean up
   phonetic = phonetic
-    .replace(/[^a-z\-]/g, "") // Remove non-alphabetic chars except hyphen
-    .replace(/\-{2,}/g, "-") // Remove double hyphens
-    .replace(/^[\-]+|[\-]+$/g, ""); // Remove leading/trailing hyphens
+    .replace(/[^a-z-]/g, "") // Remove non-alphabetic chars except hyphen
+    .replace(/-{2,}/g, "-") // Remove double hyphens
+    .replace(/^[-]+|[-]+$/g, ""); // Remove leading/trailing hyphens
 
   // Add hyphens for syllable breaks (very basic approximation)
   // Words with 5+ letters get a hyphen before final syllable

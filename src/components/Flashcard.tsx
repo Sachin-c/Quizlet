@@ -12,9 +12,9 @@ interface FlashcardProps {
 
 export const Flashcard: React.FC<FlashcardProps> = ({
   word,
-  onCorrect,
-  onIncorrect,
-  isLoading = false,
+  // onCorrect,
+  // onIncorrect,
+  // isLoading = false,
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
