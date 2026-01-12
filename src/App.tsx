@@ -7,13 +7,15 @@ import { QuizView } from "./components/QuizView";
 import { VerbStudy } from "./components/VerbStudy";
 import { ProgressView } from "./components/ProgressView";
 import { Settings } from "./components/Settings";
+import { TypingMode } from "./components/TypingMode";
+import { SRSStudy } from "./components/SRSStudy";
 import { vocabularyData, commonVerbs } from "./data/vocabulary";
 import { StorageManager } from "./utils/storage";
 
-type ViewType = "study" | "quiz" | "verbs" | "stats" | "settings";
+type ViewType = "study" | "quiz" | "verbs" | "stats" | "settings" | "typing" | "srs";
 
 function App() {
-  const [currentView, setCurrentView] = useState<ViewType>("study");
+  const [currentView, setCurrentView] = useState<ViewType>("srs"); // Default to Smart Review
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -44,10 +46,12 @@ function App() {
         onShowVerbs={() => setCurrentView("verbs")}
         onShowStats={() => setCurrentView("stats")}
         onShowSettings={() => setCurrentView("settings")}
+        onShowTyping={() => setCurrentView("typing")}
+        onShowSRS={() => setCurrentView("srs")}
         activeView={currentView}
       />
 
-      <main className="py-8 px-4">
+      <main className="py-6 px-4">
         {(currentView === "study" || currentView === "quiz") && (
           <SearchBar
             searchTerm={searchTerm}
@@ -56,11 +60,17 @@ function App() {
           />
         )}
 
+        {currentView === "srs" && (
+          <SRSStudy key={`srs-${refreshKey}`} allWords={vocabularyData} />
+        )}
         {currentView === "study" && (
           <StudyView
             key={`study-${refreshKey}`}
             allWords={filteredVocabulary}
           />
+        )}
+        {currentView === "typing" && (
+          <TypingMode key={`typing-${refreshKey}`} allWords={vocabularyData} />
         )}
         {currentView === "quiz" && (
           <QuizView key={`quiz-${refreshKey}`} allWords={filteredVocabulary} />

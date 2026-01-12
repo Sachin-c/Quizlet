@@ -1,4 +1,5 @@
-import type { UserProgress, DailyStats, VocabularyWord } from "../types";
+import type { UserProgress, DailyStats, VocabularyWord, CardProgress } from "../types";
+import { SRSManager } from "./srs";
 
 const STORAGE_KEY = "french_vocab_progress";
 
@@ -22,7 +23,8 @@ export class StorageManager {
   static updateCardProgress(
     progress: UserProgress,
     wordId: string,
-    isCorrect: boolean
+    isCorrect: boolean,
+    wasHard: boolean = false
   ): UserProgress {
     const currentProgress = progress.wordProgress[wordId] || {
       wordId,
@@ -30,8 +32,15 @@ export class StorageManager {
       incorrect: 0,
       lastReviewedAt: Date.now(),
       difficulty: 0,
+      srs: SRSManager.initializeSRS(wordId),
     };
 
+    // Ensure SRS data exists
+    if (!currentProgress.srs) {
+      currentProgress.srs = SRSManager.initializeSRS(wordId);
+    }
+
+    // Update basic stats
     if (isCorrect) {
       currentProgress.correct++;
       currentProgress.difficulty = Math.max(
@@ -47,6 +56,10 @@ export class StorageManager {
     }
 
     currentProgress.lastReviewedAt = Date.now();
+
+    // Update SRS data
+    const quality = SRSManager.getQualityFromAnswer(isCorrect, wasHard);
+    currentProgress.srs = SRSManager.calculateNextReview(currentProgress.srs, quality);
 
     const updatedProgress = {
       ...progress,
@@ -158,6 +171,9 @@ export class StorageManager {
       progress.dailyStats.reduce((sum, stat) => sum + stat.correctAnswers, 0) ||
       0;
 
+    // Get SRS stats
+    const srsStats = SRSManager.getStats(progress.wordProgress);
+
     return {
       totalCards,
       reviewedCards,
@@ -165,6 +181,50 @@ export class StorageManager {
       overallAccuracy:
         totalAnswered > 0 ? (totalCorrect / totalAnswered) * 100 : 0,
       todayStats: this.getTodayStats(progress),
+      srsStats,
+    };
+  }
+
+  /**
+   * Get cards for SRS-based study session
+   */
+  static getSRSStudyQueue(
+    words: VocabularyWord[],
+    progress: UserProgress,
+    limit: number = 20
+  ): VocabularyWord[] {
+    const allWordIds = words.map((w) => w.id);
+    const { dueCards, newCards } = SRSManager.getStudyQueue(
+      progress.wordProgress,
+      allWordIds,
+      limit
+    );
+
+    const studyIds = [...dueCards, ...newCards];
+    const wordMap = new Map(words.map((w) => [w.id, w]));
+
+    return studyIds
+      .map((id) => wordMap.get(id))
+      .filter((w): w is VocabularyWord => w !== undefined);
+  }
+
+  /**
+   * Get the next review info for a word
+   */
+  static getWordSRSInfo(progress: UserProgress, wordId: string) {
+    const cardProgress = progress.wordProgress[wordId];
+    if (!cardProgress?.srs) {
+      return { status: "new", text: "New card" };
+    }
+
+    const text = SRSManager.getNextReviewText(cardProgress.srs);
+    const isDue = cardProgress.srs.nextReviewDate <= Date.now();
+
+    return {
+      status: isDue ? "due" : "scheduled",
+      text,
+      interval: cardProgress.srs.interval,
+      easeFactor: cardProgress.srs.easeFactor,
     };
   }
 

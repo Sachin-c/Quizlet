@@ -100,7 +100,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
         <span className="text-gray-300">|</span>
 
         {/* Categories */}
-        <span className="font-semibold text-gray-500">Cat:</span>
+        <span className="font-semibold text-gray-500">Category:</span>
         {categories.map((c) => (
           <button
             key={c}

@@ -7,15 +7,14 @@
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
-  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #fdf4ff 100%);
 }
 
 main {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 2rem 1rem;
-  animation: fadeInPage 0.6s ease-out;
+  padding: 1.5rem 1rem;
+  animation: fadeInPage 0.5s ease-out;
 }
 
 /* ========================================
@@ -23,25 +22,25 @@ main {
    ======================================== */
 
 .gradient-blue-indigo {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  box-shadow: 0 10px 40px rgba(79, 70, 229, 0.3);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.25);
 }
 
 .gradient-light-blue {
-  background: linear-gradient(135deg, #f0f4ff 0%, #e8eaff 100%);
+  background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%);
 }
 
 /* Professional card with modern shadow */
 .card-shadow {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 10px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04), 0 10px 20px rgba(0, 0, 0, 0.06);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
 .card-shadow:hover {
-  box-shadow: 0 20px 40px rgba(79, 70, 229, 0.15),
-    0 4px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.06);
+  transform: translateY(-3px);
 }
 
 /* Smooth transitions */
@@ -65,7 +64,7 @@ main {
 @keyframes slideInFromTop {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-15px);
   }
   to {
     opacity: 1;
@@ -76,7 +75,7 @@ main {
 @keyframes slideInFromBottom {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(15px);
   }
   to {
     opacity: 1;
@@ -87,26 +86,26 @@ main {
 @keyframes pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
   }
   50% {
-    box-shadow: 0 0 30px rgba(124, 58, 237, 0.6);
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.5);
   }
 }
 
 @keyframes shimmer {
   0% {
-    background-position: -1000px 0;
+    background-position: -200% 0;
   }
   100% {
-    background-position: 1000px 0;
+    background-position: 200% 0;
   }
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -117,7 +116,7 @@ main {
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -130,17 +129,17 @@ main {
 }
 
 .fade-in {
-  animation: fadeIn 0.5s ease-out;
+  animation: fadeIn 0.4s ease-out;
 }
 
 .slide-up {
-  animation: slideUp 0.6s ease-out;
+  animation: slideUp 0.5s ease-out;
 }
 
 .bounce-soft {
-  animation: fadeIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: fadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .progress-fill {
-  animation: slideUp 0.6s ease-out;
+  animation: slideUp 0.5s ease-out;
 }

@@ -26,32 +26,55 @@ export const Flashcard: React.FC<FlashcardProps> = ({
     speechSynthesis.speak(utterance);
   };
 
+  // Compact layout for verbs to fit everything on screen
+  const isVerb = word.isVerb && !isFlipped;
+
   return (
-    <div className="flex flex-col items-center gap-4 w-full">
-      {/* Card - Quizlet Style - NO 3D FLIP */}
+    <div className="flex flex-col items-center gap-3 w-full">
+      {/* Card - Quizlet Style - Compact for Verbs */}
       <div
-        className="w-full max-w-3xl bg-white rounded-2xl cursor-pointer transition-all duration-300 p-6 min-h-[18rem] flex flex-col items-center justify-center border border-gray-100 shadow-lg hover:shadow-2xl"
+        className={`w-full max-w-3xl bg-white rounded-2xl cursor-pointer transition-all duration-300 flex flex-col items-center justify-center border border-gray-100 shadow-lg hover:shadow-2xl ${
+          isVerb ? "p-4 min-h-[10rem]" : "p-6 min-h-[16rem]"
+        }`}
         onClick={() => setIsFlipped(!isFlipped)}
       >
-        {/* Emoji */}
+        {/* Emoji - smaller for verbs */}
         {word.imageUrl && (
-          <div className="mb-8 animate-scale-in text-6xl">{word.imageUrl}</div>
+          <div
+            className={`animate-scale-in ${
+              isVerb ? "mb-2 text-4xl" : "mb-6 text-6xl"
+            }`}
+          >
+            {word.imageUrl}
+          </div>
         )}
 
         <div className="flex flex-col items-center justify-center w-full">
-          <p className="text-sm font-semibold text-gray-400 mb-4 tracking-wide uppercase">
+          <p
+            className={`font-semibold text-gray-400 tracking-wide uppercase ${
+              isVerb ? "text-xs mb-1" : "text-sm mb-3"
+            }`}
+          >
             {isFlipped ? "✓ English" : "• Français"}
           </p>
-          <p className="text-4xl md:text-5xl font-black text-gray-900 text-center mb-2 break-words">
+          <p
+            className={`font-black text-gray-900 text-center break-words ${
+              isVerb ? "text-3xl md:text-4xl mb-1" : "text-4xl md:text-5xl mb-2"
+            }`}
+          >
             {isFlipped ? word.english : word.french}
           </p>
 
           {/* Phonetics */}
-          <p className="text-lg text-gray-500 italic mb-4">
+          <p
+            className={`text-gray-500 italic ${
+              isVerb ? "text-sm mb-2" : "text-lg mb-3"
+            }`}
+          >
             /{isFlipped ? word.english : getFrenchPhonetics(word.french)}/
           </p>
 
-          {/* Speaker Button */}
+          {/* Speaker Button - smaller for verbs */}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -59,54 +82,26 @@ export const Flashcard: React.FC<FlashcardProps> = ({
               const lang = isFlipped ? "en-US" : "fr-FR";
               speak(textToSpeak, lang);
             }}
-            className="mb-3 px-4 py-2 text-xs  bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg text-sm font-semibold flex items-center gap-2 transition-all hover:shadow-lg active:scale-95"
+            className={`bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:shadow-lg active:scale-95 ${
+              isVerb ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm mb-2"
+            }`}
             title="Click to listen"
           >
             🔊 Speak
           </button>
 
-          <p className="text-xs text-gray-500 mt-4">
+          <p
+            className={`text-gray-500 ${isVerb ? "text-xs mt-1" : "text-xs mt-3"}`}
+          >
             Click to {isFlipped ? "see French" : "reveal English"}
           </p>
         </div>
-
-        {/* Verb Conjugations */}
-        {word.isVerb && !isFlipped && (
-          <VerbConjugation conjugations={word.conjugations} />
-        )}
       </div>
 
-      {/* Action Buttons */}
-      {/* <div className="flex gap-4 w-full max-w-3xl">
-        <button
-          onClick={() => {
-            onIncorrect();
-          }}
-          disabled={isLoading}
-          className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-lg transition-all hover:shadow-lg active:scale-95 shadow-md"
-          title="Mark this card as 'still learning' - you'll see it again soon"
-        >
-          <div className="flex items-center justify-center gap-2">
-            <span className="text-2xl">📌</span>
-            <span>Still Learning</span>
-          </div>
-          <div className="text-xs opacity-80 mt-1">Need more practice</div>
-        </button>
-        <button
-          onClick={() => {
-            onCorrect();
-          }}
-          disabled={isLoading}
-          className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-lg transition-all hover:shadow-lg active:scale-95 shadow-md"
-          title="Mark this card as 'got it' - you'll see it less often"
-        >
-          <div className="flex items-center justify-center gap-2">
-            <span className="text-2xl">✅</span>
-            <span>Got It!</span>
-          </div>
-          <div className="text-xs opacity-80 mt-1">I knew that</div>
-        </button>
-      </div> */}
+      {/* Verb Conjugations - shown outside card for better visibility */}
+      {word.isVerb && !isFlipped && (
+        <VerbConjugation conjugations={word.conjugations} />
+      )}
     </div>
   );
 };

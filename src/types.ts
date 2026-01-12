@@ -1,5 +1,3 @@
-// Types and interfaces for the French vocabulary app
-
 export type CEFRLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 
 export type Category =
@@ -10,17 +8,13 @@ export type Category =
   | "Animals"
   | "Travel"
   | "Family"
-  | "Work"
   | "Clothing"
-  | "Places"
   | "Verbs";
 
 export interface Conjugation {
-  pronoun: string; // je, tu, il/elle, nous, vous, ils/elles
-  present: string;
-  presentPhonetics?: string; // Romanized phonetics for the conjugation
-  past?: string;
-  future?: string;
+  pronoun: string;
+  form: string;
+  phonetic?: string;
 }
 
 export interface VocabularyWord {
@@ -28,13 +22,32 @@ export interface VocabularyWord {
   french: string;
   english: string;
   pronunciation?: string;
-  frenchPhonetics?: string; // Romanized phonetics for French (e.g., "lee-vruh")
-  imageUrl?: string; // Optional image URL or emoji
+  frenchPhonetics?: string;
+  imageUrl?: string;
   category: Category;
   cefr: CEFRLevel;
   createdAt: number;
-  isVerb?: boolean; // Whether this word is a verb
-  conjugations?: Conjugation[]; // Verb conjugations if isVerb is true
+  isVerb?: boolean;
+  conjugations?: Conjugation[];
+  exampleFrench?: string;
+  exampleEnglish?: string;
+}
+
+// ========================================
+// SPACED REPETITION SYSTEM (SRS) TYPES
+// ========================================
+
+export interface SRSData {
+  wordId: string;
+  // SM-2 Algorithm fields
+  easeFactor: number; // Default 2.5, min 1.3 - measures how easy a card is
+  interval: number; // Days until next review
+  repetitions: number; // Number of consecutive correct answers
+  nextReviewDate: number; // Timestamp of next scheduled review
+  lastReviewDate: number; // Timestamp of last review
+  // Stats
+  correct: number;
+  incorrect: number;
 }
 
 export interface CardProgress {
@@ -43,14 +56,16 @@ export interface CardProgress {
   incorrect: number;
   lastReviewedAt: number;
   difficulty: number; // 0-1, increases with incorrect answers
+  // SRS fields
+  srs?: SRSData;
 }
 
 export interface DailyStats {
-  date: string; // YYYY-MM-DD
+  date: string;
   cardsStudied: number;
   correctAnswers: number;
   incorrectAnswers: number;
-  accuracy: number; // percentage
+  accuracy: number;
 }
 
 export interface UserProgress {
@@ -61,11 +76,11 @@ export interface UserProgress {
   lastStudyDate: string | null;
 }
 
-export interface StudySession {
-  sessionId: string;
-  startTime: number;
-  endTime?: number;
-  cardsReviewed: number;
-  correctAnswers: number;
-  incorrectAnswers: number;
-}
+// Quality rating for SRS (0-5 scale like SM-2)
+export type SRSQuality = 0 | 1 | 2 | 3 | 4 | 5;
+// 0 - Complete blackout, no recall
+// 1 - Incorrect, but remembered upon seeing answer
+// 2 - Incorrect, but answer seemed easy to recall
+// 3 - Correct with serious difficulty
+// 4 - Correct after hesitation
+// 5 - Perfect response

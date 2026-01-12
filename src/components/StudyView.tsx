@@ -58,6 +58,7 @@ export const StudyView: React.FC<StudyViewProps> = ({ allWords }) => {
 
     setCurrentIndex((currentIndex + 1) % filteredWords.length);
   };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignore when typing in inputs/selects
@@ -88,16 +89,17 @@ export const StudyView: React.FC<StudyViewProps> = ({ allWords }) => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [filteredWords.length]);
+
   if (filteredWords.length === 0) {
     return (
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-4xl mx-auto space-y-6">
         <FilterSection words={allWords} onFilterChange={setFilteredWords} />
-        <div className="text-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg p-12 border-2 border-blue-200">
-          <div className="text-6xl mb-4 opacity-50">🔍</div>
-          <p className="text-gray-600 text-xl font-semibold mb-2">
+        <div className="text-center bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-2xl shadow-lg p-10 border border-indigo-100">
+          <div className="text-5xl mb-4 opacity-60">🔍</div>
+          <p className="text-gray-700 text-lg font-semibold mb-2">
             No words match your filters
           </p>
-          <p className="text-gray-500">
+          <p className="text-gray-500 text-sm">
             Try adjusting your difficulty level or category selection.
           </p>
         </div>
@@ -106,26 +108,28 @@ export const StudyView: React.FC<StudyViewProps> = ({ allWords }) => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-5">
       <FilterSection words={allWords} onFilterChange={handleFilterChange} />
 
       {/* Study Container */}
-      <div className="bg-white rounded-2xl shadow-lg p-8 card-shadow">
+      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/80">
         {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-3">
-            <div>
-              <h3 className="font-black text-lg bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Card {currentIndex + 1} of {filteredWords.length}
-              </h3>
-            </div>
-            <span className="text-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-lg">
+        <div className="mb-5">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="font-bold text-sm text-gray-600">
+              Card{" "}
+              <span className="text-gradient font-black">
+                {currentIndex + 1}
+              </span>{" "}
+              of {filteredWords.length}
+            </h3>
+            <span className="text-xs font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-500 px-2.5 py-1 rounded-full">
               {Math.round(((currentIndex + 1) / filteredWords.length) * 100)}%
             </span>
           </div>
-          <div className="w-full bg-gradient-to-r from-gray-200 to-gray-300 rounded-full h-3 overflow-hidden shadow-inner">
+          <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-full transition-all duration-500 ease-out progress-fill"
+              className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-500 ease-out"
               style={{
                 width: `${((currentIndex + 1) / filteredWords.length) * 100}%`,
               }}
@@ -143,38 +147,38 @@ export const StudyView: React.FC<StudyViewProps> = ({ allWords }) => {
           />
         )}
       </div>
-      <div className="flex justify-center mt-6">
-        <div className="flex gap-3 w-full max-w-3xl">
-          <button
-            onClick={() =>
-              setCurrentIndex(
-                (prev) =>
-                  (prev - 1 + filteredWords.length) % filteredWords.length
-              )
-            }
-            className="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-all active:scale-95"
-          >
-            ← Previous
-          </button>
 
-          <button
-            onClick={() =>
-              setCurrentIndex(Math.floor(Math.random() * filteredWords.length))
-            }
-            className="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-all active:scale-95"
-          >
-            🔀 Random
-          </button>
+      {/* Navigation Buttons */}
+      <div className="flex gap-2">
+        <button
+          onClick={() =>
+            setCurrentIndex(
+              (prev) =>
+                (prev - 1 + filteredWords.length) % filteredWords.length
+            )
+          }
+          className="flex-1 px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-all active:scale-95 border border-gray-200 shadow-sm hover:shadow-md"
+        >
+          ← Previous
+        </button>
 
-          <button
-            onClick={() =>
-              setCurrentIndex((prev) => (prev + 1) % filteredWords.length)
-            }
-            className="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-all active:scale-95"
-          >
-            Next →
-          </button>
-        </div>
+        <button
+          onClick={() =>
+            setCurrentIndex(Math.floor(Math.random() * filteredWords.length))
+          }
+          className="flex-1 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold rounded-xl transition-all active:scale-95 shadow-md hover:shadow-lg"
+        >
+          🔀 Random
+        </button>
+
+        <button
+          onClick={() =>
+            setCurrentIndex((prev) => (prev + 1) % filteredWords.length)
+          }
+          className="flex-1 px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-all active:scale-95 border border-gray-200 shadow-sm hover:shadow-md"
+        >
+          Next →
+        </button>
       </div>
     </div>
   );
