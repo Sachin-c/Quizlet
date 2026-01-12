@@ -1,4 +1,4 @@
-import type { UserProgress, DailyStats, VocabularyWord, CardProgress } from "../types";
+import type { UserProgress, DailyStats, VocabularyWord } from "../types";
 import { SRSManager } from "./srs";
 
 const STORAGE_KEY = "french_vocab_progress";

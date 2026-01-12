@@ -13,8 +13,8 @@ export type Category =
 
 export interface Conjugation {
   pronoun: string;
-  form: string;
-  phonetic?: string;
+  present: string;
+  presentPhonetics?: string;
 }
 
 export interface VocabularyWord {

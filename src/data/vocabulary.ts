@@ -7224,8 +7224,7 @@ export const categories: Category[] = [
   "Food",
   "Animals",
   "Travel",
-  "Family",
-  "Work",
+  "Family",  
   "Clothing",
   "Verbs",
 ];
