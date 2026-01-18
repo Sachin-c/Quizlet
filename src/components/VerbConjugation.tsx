@@ -32,25 +32,25 @@ export const VerbConjugation: React.FC<VerbConjugationProps> = ({
         {conjugations.map((conj, idx) => (
           <div
             key={idx}
-            className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 border border-indigo-100 rounded-xl p-2.5 hover:shadow-md hover:border-indigo-200 transition-all group"
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition-all group"
           >
             <div className="flex items-center justify-between gap-1.5">
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-wide">
+                <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                   {conj.pronoun}
                 </p>
-                <p className="text-base font-black text-gray-900 truncate">
+                <p className="text-base font-black text-slate-900 dark:text-slate-100 truncate">
                   {conj.present}
                 </p>
                 {conj.presentPhonetics && (
-                  <p className="text-[10px] text-gray-500 italic truncate">
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 italic truncate">
                     /{conj.presentPhonetics}/
                   </p>
                 )}
               </div>
               <button
                 onClick={(e) => speak(conj.present, "fr-FR", e)}
-                className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white rounded-lg text-xs flex items-center justify-center transition-all active:scale-95 opacity-80 group-hover:opacity-100"
+                className="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-slate-700 text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white rounded-lg text-xs flex items-center justify-center transition-all active:scale-95 opacity-80 group-hover:opacity-100"
                 title="Pronounce"
               >
                 🔊

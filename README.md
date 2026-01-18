@@ -1,14 +1,17 @@
-# French Vocabulary Trainer 🇫🇷
+# 🇫🇷 French Learning App
 
-A modern, interactive web application for learning French vocabulary with progress tracking and spaced repetition. Built with React, TypeScript, Tailwind CSS, and Vite.
+## Welcome to my French Learning Journey!
+Bienvenue! This application is designed to make learning French vocabulary engaging, effective, and fun. It features a smart spaced repetition system, gamification, and a beautiful interface to keep you motivated.
+
+**Live Demo:** [https://quizlet-chi.vercel.app/](https://quizlet-chi.vercel.app/)
 
 ## Features
 
-### 📚 Study Mode
-
-- **Interactive Flashcards**: Click to flip cards and reveal English translations
-- **Multiple Difficulty Levels**: Learn vocabulary from A1 (Beginner) to C2 (Mastery)
-  - A1: Elementary
+- **Smart Review (SRS)**: An intelligent system that prioritizes words you need to practice.
+- **Gamification**: Earn XP, level up, and maintain your daily streak!
+- **Dark Mode**: A sleek, professional dark theme for late-night study sessions.
+- **Typing Practice**: Test your spelling and recall with strict checking.
+- **Audio Pronunciation**: Hear the correct pronunciation of every word.
   - A2: Elementary Upper Level
   - B1: Intermediate
   - B2: Upper Intermediate

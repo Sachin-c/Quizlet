@@ -27,7 +27,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ allWords }) => {
 
         <ProgressStats
           todayStats={stats.todayStats}
-          currentStreak={progress.currentStreak}
+          currentStreak={progress.stats.currentStreak}
           masteredCards={stats.masterCards}
           totalCards={stats.totalCards}
         />
@@ -36,84 +36,72 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ allWords }) => {
       {/* Detailed Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Overview */}
-        <div className="card-elevated p-8 card-shadow">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-8 border border-slate-200 dark:border-slate-700">
           <div className="flex items-center gap-2 mb-6">
             <span className="text-2xl">📊</span>
-            <h3 className="text-xl font-black text-gray-800">Overview</h3>
+            <h3 className="text-xl font-black text-slate-800 dark:text-slate-100">Overview</h3>
           </div>
+          {/* ... (no changes to overview items needed, just make sure stats object is correct) ... */}
           <div className="space-y-4">
-            <div className="flex justify-between items-center p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50">
-              <span className="text-gray-700 font-semibold">Total Cards</span>
-              <span className="text-2xl font-black text-blue-600">
-                {stats.totalCards}
-              </span>
-            </div>
-            <div className="flex justify-between items-center p-3 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50">
-              <span className="text-gray-700 font-semibold">
-                Reviewed Cards
-              </span>
-              <span className="text-2xl font-black text-green-600">
-                {stats.reviewedCards}
-              </span>
-            </div>
-            <div className="flex justify-between items-center p-3 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50">
-              <span className="text-gray-700 font-semibold">
-                Mastered Cards
-              </span>
-              <span className="text-2xl font-black text-purple-600">
-                {stats.masterCards}
-              </span>
-            </div>
-            <div className="flex justify-between items-center p-3 rounded-lg bg-gradient-to-r from-orange-50 to-red-50">
-              <span className="text-gray-700 font-semibold">
-                Overall Accuracy
-              </span>
-              <span className="text-2xl font-black text-orange-600">
-                {stats.overallAccuracy > 0
-                  ? stats.overallAccuracy.toFixed(1)
-                  : 0}
-                %
-              </span>
-            </div>
+             {/* Total Cards */}
+             <div className="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-slate-900">
+               <span className="text-slate-600 dark:text-slate-400 font-semibold">Total Cards</span>
+               <span className="text-2xl font-black text-blue-600 dark:text-blue-400">{stats.totalCards}</span>
+             </div>
+             {/* Reviewed */}
+             <div className="flex justify-between items-center p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
+               <span className="text-slate-600 dark:text-slate-400 font-semibold">Reviewed</span>
+               <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{stats.reviewedCards}</span>
+             </div>
+              {/* Mastered */}
+             <div className="flex justify-between items-center p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20">
+               <span className="text-slate-600 dark:text-slate-400 font-semibold">Mastered</span>
+               <span className="text-2xl font-black text-amber-600 dark:text-amber-400">{stats.masterCards}</span>
+             </div>
+             {/* Accuracy */}
+             <div className="flex justify-between items-center p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+               <span className="text-slate-600 dark:text-slate-400 font-semibold">Accuracy</span>
+               <span className="text-2xl font-black text-purple-600 dark:text-purple-400">{stats.overallAccuracy.toFixed(1)}%</span>
+             </div>
           </div>
         </div>
 
         {/* Learning Journey */}
-        <div className="card-elevated p-8 card-shadow">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-8 border border-slate-200 dark:border-slate-700">
           <div className="flex items-center gap-2 mb-6">
             <span className="text-2xl">🚀</span>
-            <h3 className="text-xl font-black text-gray-800">
+            <h3 className="text-xl font-black text-slate-800 dark:text-slate-100">
               Learning Journey
             </h3>
           </div>
           <div className="space-y-4">
-            <div className="flex justify-between items-center p-3 rounded-lg bg-gradient-to-r from-yellow-50 to-orange-50">
-              <span className="text-gray-700 font-semibold">Days Studied</span>
-              <span className="text-2xl font-black text-orange-600">
+            <div className="flex justify-between items-center p-3 rounded-lg bg-orange-50 dark:bg-orange-900/20">
+              <span className="text-slate-600 dark:text-slate-400 font-semibold">Days Studied</span>
+              <span className="text-2xl font-black text-orange-600 dark:text-orange-400">
                 {progress.dailyStats.length}
               </span>
             </div>
-            <div className="flex justify-between items-center p-3 rounded-lg bg-gradient-to-r from-red-50 to-pink-50">
-              <span className="text-gray-700 font-semibold">
+            <div className="flex justify-between items-center p-3 rounded-lg bg-red-50 dark:bg-red-900/20">
+              <span className="text-slate-600 dark:text-slate-400 font-semibold">
                 Current Streak
               </span>
-              <span className="text-2xl font-black text-red-600 flex items-center gap-1">
-                {progress.currentStreak} <span className="text-lg">🔥</span>
+              <span className="text-2xl font-black text-red-600 dark:text-red-400 flex items-center gap-1">
+                {progress.stats.currentStreak} <span className="text-lg">🔥</span>
               </span>
             </div>
-            <div className="flex justify-between items-center p-3 rounded-lg bg-gradient-to-r from-indigo-50 to-blue-50">
-              <span className="text-gray-700 font-semibold">
+            <div className="flex justify-between items-center p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+              <span className="text-slate-600 dark:text-slate-400 font-semibold">
                 Last Study Date
               </span>
-              <span className="text-lg font-black text-indigo-600">
-                {progress.lastStudyDate || "—"}
+              <span className="text-lg font-black text-blue-600 dark:text-blue-400">
+                {progress.stats.lastStudyDate || "—"}
               </span>
             </div>
-            <div className="flex justify-between items-center p-3 rounded-lg bg-gradient-to-r from-teal-50 to-green-50">
-              <span className="text-gray-700 font-semibold">
+            <div className="flex justify-between items-center p-3 rounded-lg bg-teal-50 dark:bg-teal-900/20">
+              <span className="text-slate-600 dark:text-slate-400 font-semibold">
                 Total Cards Studied
               </span>
-              <span className="text-2xl font-black text-teal-600">
+              <span className="text-2xl font-black text-teal-600 dark:text-teal-400">
                 {progress.dailyStats.reduce(
                   (sum, stat) => sum + stat.cardsStudied,
                   0

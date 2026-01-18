@@ -1,5 +1,6 @@
 import type { UserProgress, DailyStats, VocabularyWord } from "../types";
 import { SRSManager } from "./srs";
+import { GamificationManager } from "./gamification";
 
 const STORAGE_KEY = "french_vocab_progress";
 
@@ -10,7 +11,24 @@ export class StorageManager {
       return this.getDefaultProgress();
     }
     try {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      // Migration: If stats object is missing, create it from old fields or default
+      if (!parsed.stats) {
+        return {
+          ...parsed,
+          stats: {
+            xp: 0,
+            level: 1,
+            currentStreak: parsed.currentStreak || 0,
+            longestStreak: parsed.currentStreak || 0,
+            lastStudyDate: parsed.lastStudyDate || null,
+            dailyGoal: 50,
+            todayXp: 0,
+            currency: 0,
+          },
+        };
+      }
+      return parsed;
     } catch {
       return this.getDefaultProgress();
     }
@@ -131,28 +149,22 @@ export class StorageManager {
       updatedStats.push(todayStats);
     }
 
-    // Update streak
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = this.formatDate(yesterday);
+    // Update Gamification Stats (Streak & XP)
+    let userStats = { ...progress.stats };
+    
+    // Update streak (GamificationManager handles logic)
+    userStats = GamificationManager.updateStreak(userStats);
 
-    let currentStreak = progress.currentStreak;
-    if (
-      progress.lastStudyDate === yesterdayStr ||
-      progress.lastStudyDate === today
-    ) {
-      if (progress.lastStudyDate !== today) {
-        currentStreak++;
-      }
-    } else if (progress.lastStudyDate !== today) {
-      currentStreak = 1;
+    // Award XP if correct
+    if (isCorrect) {
+      const { stats: newStats } = GamificationManager.awardXP(userStats, GamificationManager.XP_PER_CORRECT);
+      userStats = newStats;
     }
 
     return {
       ...progress,
       dailyStats: updatedStats,
-      lastStudyDate: today,
-      currentStreak,
+      stats: userStats,
       totalWordsLearned: Object.keys(progress.wordProgress).length,
     };
   }
@@ -182,6 +194,7 @@ export class StorageManager {
         totalAnswered > 0 ? (totalCorrect / totalAnswered) * 100 : 0,
       todayStats: this.getTodayStats(progress),
       srsStats,
+      userStats: progress.stats, // Expose gamification stats
     };
   }
 
@@ -233,8 +246,16 @@ export class StorageManager {
       wordProgress: {},
       dailyStats: [],
       totalWordsLearned: 0,
-      currentStreak: 0,
-      lastStudyDate: null,
+      stats: {
+        xp: 0,
+        level: 1,
+        currentStreak: 0,
+        longestStreak: 0,
+        lastStudyDate: null,
+        dailyGoal: 50,
+        todayXp: 0,
+        currency: 0,
+      },
     };
   }
 

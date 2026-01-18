@@ -68,12 +68,23 @@ export interface DailyStats {
   accuracy: number;
 }
 
+// Gamification Types
+export interface UserStats {
+  xp: number;
+  level: number;
+  currentStreak: number;
+  longestStreak: number;
+  lastStudyDate: string | null; // YYYY-MM-DD
+  dailyGoal: number; // Target XP for the day
+  todayXp: number; // XP earned today
+  currency: number; // Gems/Lingots
+}
+
 export interface UserProgress {
   wordProgress: Record<string, CardProgress>;
   dailyStats: DailyStats[];
   totalWordsLearned: number;
-  currentStreak: number;
-  lastStudyDate: string | null;
+  stats: UserStats; // Added stats object
 }
 
 // Quality rating for SRS (0-5 scale like SM-2)

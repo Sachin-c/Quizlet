@@ -86,14 +86,14 @@ export const VerbStudy: React.FC<VerbStudyProps> = ({ allWords }) => {
       {/* Compact Header Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-lg shadow-lg">
+          <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center text-white text-lg shadow-lg">
             🔤
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <h1 className="text-xl md:text-2xl font-black text-slate-800 dark:text-slate-100">
               Verb Conjugations
             </h1>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               {currentIndex + 1} of {verbs.length} verbs
             </p>
           </div>
@@ -134,7 +134,7 @@ export const VerbStudy: React.FC<VerbStudyProps> = ({ allWords }) => {
           onClick={() =>
             setCurrentIndex((prev) => (prev - 1 + verbs.length) % verbs.length)
           }
-          className="flex-1 px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-all active:scale-95 border border-gray-200 shadow-sm hover:shadow-md"
+          className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition-all active:scale-95 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md"
         >
           ← Previous
         </button>
@@ -142,13 +142,13 @@ export const VerbStudy: React.FC<VerbStudyProps> = ({ allWords }) => {
           onClick={() =>
             setCurrentIndex(Math.floor(Math.random() * verbs.length))
           }
-          className="flex-1 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold rounded-xl transition-all active:scale-95 shadow-md hover:shadow-lg"
+          className="flex-1 px-4 py-2.5 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-semibold rounded-xl transition-all active:scale-95 shadow-md hover:shadow-lg"
         >
           🔀 Random
         </button>
         <button
           onClick={() => setCurrentIndex((prev) => (prev + 1) % verbs.length)}
-          className="flex-1 px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-all active:scale-95 border border-gray-200 shadow-sm hover:shadow-md"
+          className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition-all active:scale-95 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md"
         >
           Next →
         </button>

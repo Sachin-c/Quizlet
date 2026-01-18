@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./App.css";
 import { Navigation } from "./components/Navigation";
 import { SearchBar } from "./components/SearchBar";
@@ -11,6 +11,7 @@ import { TypingMode } from "./components/TypingMode";
 import { SRSStudy } from "./components/SRSStudy";
 import { vocabularyData, commonVerbs } from "./data/vocabulary";
 import { StorageManager } from "./utils/storage";
+import type { UserStats } from "./types";
 
 type ViewType = "study" | "quiz" | "verbs" | "stats" | "settings" | "typing" | "srs";
 
@@ -18,14 +19,47 @@ function App() {
   const [currentView, setCurrentView] = useState<ViewType>("srs"); // Default to Smart Review
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [userStats, setUserStats] = useState<UserStats>(() => StorageManager.getProgress().stats);
+  
+  // Theme State
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("theme") === "dark" || 
+             (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches) 
+             ? "dark" : "light";
+    }
+    return "light";
+  });
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => {
+      const newTheme = prev === "light" ? "dark" : "light";
+      localStorage.setItem("theme", newTheme);
+      return newTheme;
+    });
+  }, []);
+
+  // Apply Theme Class
+  useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [theme]);
+
+  const refreshStats = useCallback(() => {
+    setUserStats(StorageManager.getProgress().stats);
+    setRefreshKey((prev) => prev + 1);
+  }, []);
 
   useEffect(() => {
     // Initialize progress on app load
-    StorageManager.getProgress();
-  }, []);
+    refreshStats();
+  }, [refreshStats]);
 
   const handleDataCleared = () => {
-    setRefreshKey((prev) => prev + 1);
+    refreshStats();
   };
 
   // Filter vocabulary based on search term
@@ -39,7 +73,7 @@ function App() {
         );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 transition-colors duration-300">
       <Navigation
         onShowStudy={() => setCurrentView("study")}
         onShowQuiz={() => setCurrentView("quiz")}
@@ -49,6 +83,9 @@ function App() {
         onShowTyping={() => setCurrentView("typing")}
         onShowSRS={() => setCurrentView("srs")}
         activeView={currentView}
+        stats={userStats}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       <main className="py-6 px-4">
@@ -61,7 +98,10 @@ function App() {
         )}
 
         {currentView === "srs" && (
-          <SRSStudy key={`srs-${refreshKey}`} allWords={vocabularyData} />
+          <SRSStudy 
+            allWords={vocabularyData}
+            onProgressUpdate={refreshStats}
+          />
         )}
         {currentView === "study" && (
           <StudyView

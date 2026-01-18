@@ -112,24 +112,24 @@ export const StudyView: React.FC<StudyViewProps> = ({ allWords }) => {
       <FilterSection words={allWords} onFilterChange={handleFilterChange} />
 
       {/* Study Container */}
-      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/80">
+      <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/80 dark:border-slate-700">
         {/* Progress Bar */}
         <div className="mb-5">
           <div className="flex justify-between items-center mb-2">
-            <h3 className="font-bold text-sm text-gray-600">
+            <h3 className="font-bold text-sm text-gray-600 dark:text-slate-300">
               Card{" "}
               <span className="text-gradient font-black">
                 {currentIndex + 1}
               </span>{" "}
               of {filteredWords.length}
             </h3>
-            <span className="text-xs font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-500 px-2.5 py-1 rounded-full">
+            <span className="text-xs font-bold text-white bg-gradient-to-r from-blue-500 to-sky-500 px-2.5 py-1 rounded-full">
               {Math.round(((currentIndex + 1) / filteredWords.length) * 100)}%
             </span>
           </div>
-          <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+          <div className="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-500 ease-out"
+              className="h-full bg-gradient-to-r from-blue-500 via-sky-500 to-cyan-500 rounded-full transition-all duration-500 ease-out"
               style={{
                 width: `${((currentIndex + 1) / filteredWords.length) * 100}%`,
               }}
@@ -157,7 +157,7 @@ export const StudyView: React.FC<StudyViewProps> = ({ allWords }) => {
                 (prev - 1 + filteredWords.length) % filteredWords.length
             )
           }
-          className="flex-1 px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-all active:scale-95 border border-gray-200 shadow-sm hover:shadow-md"
+          className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition-all active:scale-95 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md"
         >
           ← Previous
         </button>
@@ -166,7 +166,7 @@ export const StudyView: React.FC<StudyViewProps> = ({ allWords }) => {
           onClick={() =>
             setCurrentIndex(Math.floor(Math.random() * filteredWords.length))
           }
-          className="flex-1 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold rounded-xl transition-all active:scale-95 shadow-md hover:shadow-lg"
+          className="flex-1 px-4 py-2.5 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-semibold rounded-xl transition-all active:scale-95 shadow-md hover:shadow-lg"
         >
           🔀 Random
         </button>
@@ -175,7 +175,7 @@ export const StudyView: React.FC<StudyViewProps> = ({ allWords }) => {
           onClick={() =>
             setCurrentIndex((prev) => (prev + 1) % filteredWords.length)
           }
-          className="flex-1 px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-all active:scale-95 border border-gray-200 shadow-sm hover:shadow-md"
+          className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition-all active:scale-95 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md"
         >
           Next →
         </button>

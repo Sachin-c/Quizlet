@@ -145,22 +145,22 @@ export const QuizView: React.FC<QuizViewProps> = ({ allWords }) => {
       <FilterSection words={allWords} onFilterChange={handleFilterChange} />
 
       {/* Quiz Container */}
-      <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8 border border-slate-200 dark:border-slate-700">
         {/* Progress */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
             <div>
-              <h3 className="font-black text-lg text-gradient">
+              <h3 className="font-black text-lg text-gradient dark:text-slate-100">
                 Question {currentQuestionIndex + 1} of {questions.length}
               </h3>
             </div>
-            <span className="text-sm font-bold text-gray-600 bg-gray-100 px-4 py-2 rounded-lg badge-secondary">
+            <span className="text-sm font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-4 py-2 rounded-lg badge-secondary">
               Score: {score}/{questions.length}
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 transition-all duration-500"
+              className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-500"
               style={{
                 width: `${
                   ((currentQuestionIndex + 1) / questions.length) * 100
@@ -172,16 +172,16 @@ export const QuizView: React.FC<QuizViewProps> = ({ allWords }) => {
 
         {/* Question */}
         <div className="mb-8">
-          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-8 border border-indigo-200">
-            <p className="text-sm font-semibold text-gray-600 mb-4 uppercase tracking-wide">
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-200 dark:from-slate-700 dark:to-slate-800 dark:border-slate-600">
+            <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-4 uppercase tracking-wide">
               What is the English translation?
             </p>
             <div className="flex items-center justify-center gap-4">
-              <p className="text-5xl font-black text-gray-900">
+              <p className="text-5xl font-black text-slate-900 dark:text-slate-100">
                 {currentQuestion.correct.french}
               </p>
             </div>
-            <p className="text-xs text-gray-500 mt-4 text-center">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 text-center">
               Difficulty: {currentQuestion.correct.cefr} •{" "}
               {currentQuestion.correct.category}
             </p>
@@ -201,8 +201,8 @@ export const QuizView: React.FC<QuizViewProps> = ({ allWords }) => {
                     ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg scale-105"
                     : "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg scale-105"
                   : answered && option.id === currentQuestion.correct.id
-                  ? "bg-gradient-to-r from-green-100 to-emerald-100 text-gray-900 border-2 border-green-500"
-                  : "bg-gray-50 hover:bg-gray-100 text-gray-900 border-2 border-gray-300 hover:border-gray-400"
+                  ? "bg-gradient-to-r from-green-100 to-emerald-100 text-slate-900 dark:text-slate-100 border-2 border-green-500"
+                  : "bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-900 dark:text-slate-200 border-2 border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500"
               } ${
                 answered
                   ? "cursor-default"

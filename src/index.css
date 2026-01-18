@@ -18,9 +18,21 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #1f2937;
-  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #fdf4ff 100%);
-  min-height: 100vh;
+  @apply text-slate-900 bg-slate-50 transition-colors duration-300;
+}
+
+/* Dark Mode Base */
+.dark body {
+  @apply text-slate-50 bg-slate-950;
+}
+
+/* Base Background */
+body {
+  background: white; /* Fallback */
+}
+
+.dark body {
+  background: #020617; /* slate-950 */
 }
 
 #root {
@@ -30,18 +42,14 @@ body {
   padding: 0;
 }
 
-/* Professional button styling */
+/* Professional button styling - Base Reset */
 button {
   font-weight: 500;
   transition: all 0.2s ease-out;
 }
 
-button:hover {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
-
 button:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 /* Input styling */

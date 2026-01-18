@@ -63,16 +63,16 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3 text-sm">
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-3 text-sm">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-xs font-bold uppercase tracking-wide text-gray-600">
+        <h3 className="text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-400">
           Filters
         </h3>
         {(selectedLevels.size > 0 || selectedCategories.size > 0) && (
           <button
             onClick={clearFilters}
-            className="text-xs text-indigo-600 hover:underline"
+            className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
           >
             Clear
           </button>
@@ -82,35 +82,35 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
       {/* Filters Row */}
       <div className="flex items-center gap-2 flex-wrap text-[10px]">
         {/* CEFR */}
-        <span className="font-semibold text-gray-500">Lvl:</span>
+        <span className="font-semibold text-slate-500 dark:text-slate-400">Lvl:</span>
         {levels.map((level) => (
           <button
             key={level}
             onClick={() => toggleSet(level, selectedLevels, setSelectedLevels)}
-            className={`px-1.5 py-0.5 rounded text-white font-semibold text-[10px] transition-colors ${
+            className={`px-1.5 py-0.5 rounded font-semibold text-[10px] transition-colors ${
               selectedLevels.has(level)
-                ? "bg-gradient-to-r from-indigo-600 to-purple-600"
-                : "bg-gray-400 text-gray-700 hover:bg-gray-600"
+                ? "bg-blue-600 text-white"
+                : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600"
             }`}
           >
             {level}
           </button>
         ))}
 
-        <span className="text-gray-300">|</span>
+        <span className="text-slate-300 dark:text-slate-600">|</span>
 
         {/* Categories */}
-        <span className="font-semibold text-gray-500">Category:</span>
+        <span className="font-semibold text-slate-500 dark:text-slate-400">Category:</span>
         {categories.map((c) => (
           <button
             key={c}
             onClick={() =>
               toggleSet(c, selectedCategories, setSelectedCategories)
             }
-            className={`px-1.5 py-0.5 rounded text-white font-semibold text-[10px] transition-colors ${
+            className={`px-1.5 py-0.5 rounded font-semibold text-[10px] transition-colors ${
               selectedCategories.has(c)
-                ? "bg-gradient-to-r from-indigo-600 to-purple-600"
-                : "bg-gray-400 text-gray-700 hover:bg-gray-500"
+                ? "bg-blue-600 text-white"
+                : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600"
             }`}
           >
             {c}

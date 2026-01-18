@@ -33,7 +33,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({
     <div className="flex flex-col items-center gap-3 w-full">
       {/* Card - Quizlet Style - Compact for Verbs */}
       <div
-        className={`w-full max-w-3xl bg-white rounded-2xl cursor-pointer transition-all duration-300 flex flex-col items-center justify-center border border-gray-100 shadow-lg hover:shadow-2xl ${
+        className={`w-full max-w-3xl bg-white dark:bg-slate-800 rounded-2xl cursor-pointer transition-all duration-300 flex flex-col items-center justify-center border border-slate-100 dark:border-slate-700 shadow-lg hover:shadow-2xl hover:border-blue-200 dark:hover:border-blue-900 ${
           isVerb ? "p-4 min-h-[10rem]" : "p-6 min-h-[16rem]"
         }`}
         onClick={() => setIsFlipped(!isFlipped)}
@@ -51,14 +51,14 @@ export const Flashcard: React.FC<FlashcardProps> = ({
 
         <div className="flex flex-col items-center justify-center w-full">
           <p
-            className={`font-semibold text-gray-400 tracking-wide uppercase ${
+            className={`font-semibold text-slate-400 dark:text-slate-500 tracking-wide uppercase ${
               isVerb ? "text-xs mb-1" : "text-sm mb-3"
             }`}
           >
             {isFlipped ? "✓ English" : "• Français"}
           </p>
           <p
-            className={`font-black text-gray-900 text-center break-words ${
+            className={`font-black text-slate-900 dark:text-slate-100 text-center break-words ${
               isVerb ? "text-3xl md:text-4xl mb-1" : "text-4xl md:text-5xl mb-2"
             }`}
           >
@@ -67,7 +67,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({
 
           {/* Phonetics */}
           <p
-            className={`text-gray-500 italic ${
+            className={`text-slate-500 dark:text-slate-400 italic ${
               isVerb ? "text-sm mb-2" : "text-lg mb-3"
             }`}
           >
@@ -82,7 +82,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({
               const lang = isFlipped ? "en-US" : "fr-FR";
               speak(textToSpeak, lang);
             }}
-            className={`bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:shadow-lg active:scale-95 ${
+            className={`bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:shadow-lg active:scale-95 ${
               isVerb ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm mb-2"
             }`}
             title="Click to listen"
@@ -91,7 +91,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({
           </button>
 
           <p
-            className={`text-gray-500 ${isVerb ? "text-xs mt-1" : "text-xs mt-3"}`}
+            className={`text-slate-500 dark:text-slate-400 ${isVerb ? "text-xs mt-1" : "text-xs mt-3"}`}
           >
             Click to {isFlipped ? "see French" : "reveal English"}
           </p>
