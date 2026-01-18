@@ -14,7 +14,6 @@ export const Settings: React.FC<SettingsProps> = ({ onDataCleared }) => {
     onDataCleared();
   };
 
-  const handleClear = handleClearData; // Alias for compatibility if needed
 
   const currentProgress = StorageManager.getProgress();
 
