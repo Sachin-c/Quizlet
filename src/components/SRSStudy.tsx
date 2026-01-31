@@ -25,12 +25,51 @@ export const SRSStudy: React.FC<SRSStudyProps> = ({ allWords, onProgressUpdate }
   const [showXP, setShowXP] = useState(false);
   const [canAdvance, setCanAdvance] = useState(false);
 
-  // Initialize study queue only once on mount or if explicitly empty
+  const SESSION_KEY = "srs_session_state";
+
+  // Save session state to sessionStorage
+  const saveSessionState = (queue: VocabularyWord[], index: number, stats: { correct: number; incorrect: number }) => {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+      queueIds: queue.map(w => w.id),
+      currentIndex: index,
+      sessionStats: stats,
+      timestamp: Date.now()
+    }));
+  };
+
+  // Restore session from sessionStorage on mount
   useEffect(() => {
-    if (studyQueue.length === 0 && allWords.length > 0) {
-        refreshQueue();
+    if (allWords.length === 0) return;
+    
+    const saved = sessionStorage.getItem(SESSION_KEY);
+    if (saved) {
+      try {
+        const { queueIds, currentIndex: savedIndex, sessionStats: savedStats, timestamp } = JSON.parse(saved);
+        // Only restore if session is less than 1 hour old
+        if (Date.now() - timestamp < 60 * 60 * 1000 && queueIds.length > 0) {
+          const wordMap = new Map(allWords.map(w => [w.id, w]));
+          const restoredQueue = queueIds.map((id: string) => wordMap.get(id)).filter(Boolean) as VocabularyWord[];
+          if (restoredQueue.length > 0 && savedIndex < restoredQueue.length) {
+            setStudyQueue(restoredQueue);
+            setCurrentIndex(savedIndex);
+            setSessionStats(savedStats);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to restore session:", e);
+      }
     }
+    // No valid saved session, start fresh
+    refreshQueue();
   }, [allWords]);
+
+  // Save state whenever queue, index, or stats change
+  useEffect(() => {
+    if (studyQueue.length > 0) {
+      saveSessionState(studyQueue, currentIndex, sessionStats);
+    }
+  }, [studyQueue, currentIndex, sessionStats]);
 
   // Generate question when index changes
   useEffect(() => {
@@ -57,6 +96,8 @@ export const SRSStudy: React.FC<SRSStudyProps> = ({ allWords, onProgressUpdate }
     setCurrentIndex(0);
     setShowComplete(false);
     setSessionStats({ correct: 0, incorrect: 0 });
+    // Clear old session when starting fresh
+    sessionStorage.removeItem(SESSION_KEY);
   };
 
   const speak = (text: string, lang: string = "fr-FR") => {

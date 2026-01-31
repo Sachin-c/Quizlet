@@ -67,9 +67,9 @@ export class SRSManager {
 
       // Calculate new interval
       if (newSRS.repetitions === 1) {
-        newSRS.interval = 1; // First success: 1 day
+        newSRS.interval = 3; // First success: 3 days (extended from 1)
       } else if (newSRS.repetitions === 2) {
-        newSRS.interval = 6; // Second success: 6 days
+        newSRS.interval = 7; // Second success: 7 days (extended from 6)
       } else {
         // Subsequent successes: interval * easeFactor
         newSRS.interval = Math.round(newSRS.interval * newSRS.easeFactor);
@@ -149,8 +149,12 @@ export class SRSManager {
     allWordIds: string[],
     totalLimit: number = 20
   ): { dueCards: string[]; newCards: string[] } {
-    const dueCards = this.getDueCards(wordProgress, Math.ceil(totalLimit * 0.7));
-    const newCardLimit = Math.max(5, totalLimit - dueCards.length);
+    // Guarantee minimum new cards for learning progression
+    const minNewCards = 5;
+    const maxDueCards = Math.max(0, totalLimit - minNewCards);
+    
+    const dueCards = this.getDueCards(wordProgress, maxDueCards);
+    const newCardLimit = Math.max(minNewCards, totalLimit - dueCards.length);
     const newCards = this.getNewCards(wordProgress, allWordIds, newCardLimit);
 
     return { dueCards, newCards };

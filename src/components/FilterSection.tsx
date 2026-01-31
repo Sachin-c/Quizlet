@@ -27,6 +27,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
     "Travel",
     "Family",
     "Clothing",
+    "Verbs",
   ];
 
   useEffect(() => {

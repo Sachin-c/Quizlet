@@ -12,6 +12,7 @@ export interface NavigationProps {
   onShowSettings: () => void;
   onShowTyping: () => void;
   onShowSRS: () => void;
+  onShowFillBlank: () => void;
   activeView: string;
   stats: UserStats;
   theme: "light" | "dark";
@@ -26,6 +27,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   onShowSettings,
   onShowTyping,
   onShowSRS,
+  onShowFillBlank,
   activeView,
   stats,
   theme,
@@ -40,7 +42,8 @@ export const Navigation: React.FC<NavigationProps> = ({
     { key: "srs", label: "Smart", icon: "🧠", onClick: onShowSRS, highlight: true },
     { key: "study", label: "Study", icon: "📚", onClick: onShowStudy },
     { key: "typing", label: "Type", icon: "✍️", onClick: onShowTyping },
-    { key: "quiz", label: "Quiz", icon: "📝", onClick: onShowQuiz },
+    { key: "fillblank", label: "Sentences", icon: "📝", onClick: onShowFillBlank },
+    { key: "quiz", label: "Quiz", icon: "❓", onClick: onShowQuiz },
     { key: "verbs", label: "Verbs", icon: "🔤", onClick: onShowVerbs },
     { key: "stats", label: "Stats", icon: "📊", onClick: onShowStats },
     { key: "settings", label: "⚙️", icon: "", onClick: onShowSettings },

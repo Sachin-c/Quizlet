@@ -7860,5 +7860,5 @@ export const commonVerbs: VocabularyWord[] = [
   },
 ];
 
-// Combine all vocabulary
-// vocabularyData.push(...commonVerbs);
+// Combine all vocabulary - add verbs to main vocabulary list
+vocabularyData.push(...commonVerbs);
