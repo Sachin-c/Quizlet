@@ -4,6 +4,7 @@ import { StorageManager } from "../utils/storage";
 import { GamificationManager } from "../utils/gamification";
 import { getFrenchPhonetics } from "../utils/phonetics";
 import { QuizUtils, type QuizQuestion } from "../utils/quiz";
+import { AudioPlayer } from "./AudioPlayer";
 
 interface SRSStudyProps {
   allWords: VocabularyWord[];
@@ -98,14 +99,6 @@ export const SRSStudy: React.FC<SRSStudyProps> = ({ allWords, onProgressUpdate }
     setSessionStats({ correct: 0, incorrect: 0 });
     // Clear old session when starting fresh
     sessionStorage.removeItem(SESSION_KEY);
-  };
-
-  const speak = (text: string, lang: string = "fr-FR") => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang;
-    utterance.rate = 0.8;
-    speechSynthesis.cancel();
-    speechSynthesis.speak(utterance);
   };
 
   const checkAnswer = (answer: string) => {
@@ -277,23 +270,40 @@ export const SRSStudy: React.FC<SRSStudyProps> = ({ allWords, onProgressUpdate }
         <div className="w-full text-center space-y-4">
             <p className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wider">How do you say this in English?</p>
             
-            <div className="py-8">
-                <div className="flex items-center justify-center gap-3 mb-2">
-                    <h1 className="text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100">{currentQuestion.word.french}</h1>
-                    <button 
-                        onClick={() => speak(currentQuestion.word.french)}
-                        className="p-2 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-500 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors"
-                        title="Play Audio"
-                    >
-                        🔊
-                    </button>
-                </div>
-                <p className="text-lg text-slate-500 dark:text-slate-400 font-serif active:blur-none">
+            <div className="py-6">
+                <h1 className="text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100 mb-2">{currentQuestion.word.french}</h1>
+                <p className="text-lg text-slate-500 dark:text-slate-400 font-serif mb-4">
                    /{getFrenchPhonetics(currentQuestion.word.french)}/
                 </p>
+                
+                {/* Dual-Speed Audio Controls */}
+                <div className="flex justify-center mb-4">
+                    <AudioPlayer 
+                        text={currentQuestion.word.french}
+                        lang="fr-FR"
+                        size="md"
+                        showLabel={true}
+                    />
+                </div>
+
                 {/* Image hint if available */}
                 {currentQuestion.word.imageUrl && (
-                    <div className="text-6xl mt-4">{currentQuestion.word.imageUrl}</div>
+                    <div className="text-5xl mb-3">{currentQuestion.word.imageUrl}</div>
+                )}
+                
+                {/* Contextual Example Sentence */}
+                {currentQuestion.word.exampleFrench && (
+                    <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800 text-left">
+                        <p className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-2">📖 Example</p>
+                        <p className="text-base text-slate-700 dark:text-slate-300 italic">
+                            "{currentQuestion.word.exampleFrench}"
+                        </p>
+                        {currentQuestion.word.exampleEnglish && feedback && (
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                → {currentQuestion.word.exampleEnglish}
+                            </p>
+                        )}
+                    </div>
                 )}
             </div>
         </div>
@@ -367,9 +377,9 @@ export const SRSStudy: React.FC<SRSStudyProps> = ({ allWords, onProgressUpdate }
     
        {/* Feedback Footer Bar */}
        {feedback && (
-            <div className={`fixed bottom-0 left-0 right-0 p-6 ${
-                 feedback === "correct" ? "bg-green-100 border-t-4 border-green-500" : "bg-red-100 border-t-4 border-red-500"
-             } animate-slide-up z-[100] shadow-2xl`}>
+             <div className={`fixed bottom-0 left-0 right-0 p-6 ${
+                  feedback === "correct" ? "bg-green-100 dark:bg-emerald-900 border-t-4 border-green-500" : "bg-red-100 dark:bg-red-900 border-t-4 border-red-500"
+              } animate-slide-up z-[100] shadow-2xl`}>
                  <div className="max-w-4xl mx-auto flex items-center justify-between">
                      <div className="flex items-center gap-4">
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-sm ${

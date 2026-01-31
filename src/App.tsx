@@ -33,15 +33,12 @@ function App() {
   });
 
   const toggleTheme = useCallback(() => {
-    setTheme((prev) => {
-      const newTheme = prev === "light" ? "dark" : "light";
-      localStorage.setItem("theme", newTheme);
-      return newTheme;
-    });
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
   }, []);
 
-  // Apply Theme Class
+  // Apply Theme
   useEffect(() => {
+    localStorage.setItem("theme", theme);
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
     } else {

@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { VocabularyWord } from "../types";
 import { getFrenchPhonetics } from "../utils/phonetics.ts";
 import { VerbConjugation } from "./VerbConjugation";
+import { AudioPlayer, ClickableTranscript } from "./AudioPlayer";
 
 interface FlashcardProps {
   word: VocabularyWord;
@@ -18,23 +19,16 @@ export const Flashcard: React.FC<FlashcardProps> = ({
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
-  const speak = (text: string, lang: string = "fr-FR") => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang;
-    utterance.rate = 0.8;
-    speechSynthesis.cancel();
-    speechSynthesis.speak(utterance);
-  };
-
   // Compact layout for verbs to fit everything on screen
   const isVerb = word.isVerb && !isFlipped;
+  const hasExample = !!(word.exampleFrench && word.exampleEnglish);
 
   return (
-    <div className="flex flex-col items-center gap-3 w-full">
+    <div className="flex flex-col items-center gap-4 w-full">
       {/* Card - Quizlet Style - Compact for Verbs */}
       <div
         className={`w-full max-w-3xl bg-white dark:bg-slate-800 rounded-2xl cursor-pointer transition-all duration-300 flex flex-col items-center justify-center border border-slate-100 dark:border-slate-700 shadow-lg hover:shadow-2xl hover:border-blue-200 dark:hover:border-blue-900 ${
-          isVerb ? "p-4 min-h-[10rem]" : "p-6 min-h-[16rem]"
+          isVerb ? "p-4 min-h-[10rem]" : "p-6 min-h-[14rem]"
         }`}
         onClick={() => setIsFlipped(!isFlipped)}
       >
@@ -42,7 +36,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({
         {word.imageUrl && (
           <div
             className={`animate-scale-in ${
-              isVerb ? "mb-2 text-4xl" : "mb-6 text-6xl"
+              isVerb ? "mb-2 text-4xl" : "mb-4 text-5xl"
             }`}
           >
             {word.imageUrl}
@@ -52,7 +46,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({
         <div className="flex flex-col items-center justify-center w-full">
           <p
             className={`font-semibold text-slate-400 dark:text-slate-500 tracking-wide uppercase ${
-              isVerb ? "text-xs mb-1" : "text-sm mb-3"
+              isVerb ? "text-xs mb-1" : "text-sm mb-2"
             }`}
           >
             {isFlipped ? "✓ English" : "• Français"}
@@ -74,26 +68,20 @@ export const Flashcard: React.FC<FlashcardProps> = ({
             /{isFlipped ? word.english : getFrenchPhonetics(word.french)}/
           </p>
 
-          {/* Speaker Button - smaller for verbs */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              const textToSpeak = isFlipped ? word.english : word.french;
-              const lang = isFlipped ? "en-US" : "fr-FR";
-              speak(textToSpeak, lang);
-            }}
-            className={`bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:shadow-lg active:scale-95 ${
-              isVerb ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm mb-2"
-            }`}
-            title="Click to listen"
-          >
-            🔊 Speak
-          </button>
+          {/* Dual-Speed Audio Controls */}
+          <div onClick={(e) => e.stopPropagation()}>
+            <AudioPlayer 
+              text={isFlipped ? word.english : word.french}
+              lang={isFlipped ? "en-US" : "fr-FR"}
+              size={isVerb ? "sm" : "md"}
+              showLabel={true}
+            />
+          </div>
 
           <p
-            className={`text-slate-500 dark:text-slate-400 ${isVerb ? "text-xs mt-1" : "text-xs mt-3"}`}
+            className={`text-slate-500 dark:text-slate-400 ${isVerb ? "text-xs mt-2" : "text-xs mt-3"}`}
           >
-            Click to {isFlipped ? "see French" : "reveal English"}
+            Click card to {isFlipped ? "see French" : "reveal English"}
           </p>
         </div>
       </div>
@@ -101,6 +89,35 @@ export const Flashcard: React.FC<FlashcardProps> = ({
       {/* Verb Conjugations - shown outside card for better visibility */}
       {word.isVerb && !isFlipped && (
         <VerbConjugation conjugations={word.conjugations} />
+      )}
+
+      {/* Contextual Example Sentence - NEW! */}
+      {hasExample && (
+        <div className="w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl p-4 border border-amber-100 dark:border-amber-800">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xl">📖</span>
+              <span className="text-sm font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                Example in Context
+              </span>
+            </div>
+            <ClickableTranscript 
+              frenchText={word.exampleFrench!}
+              englishText={word.exampleEnglish}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* No Example - Prompt */}
+      {!hasExample && !word.isVerb && (
+        <div className="w-full max-w-3xl">
+          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-200 dark:border-slate-700 text-center">
+            <p className="text-xs text-slate-400 dark:text-slate-500 italic">
+              💡 Practice using "{word.french}" in a sentence to remember it better!
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );

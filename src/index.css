@@ -1,9 +1,10 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@config "../tailwind.config.js";
 
 /* ========================================
    GOOGLE FONTS - INTER FOR MODERN LOOK
    ======================================== */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 /* ========================================
    PROFESSIONAL BASE STYLES

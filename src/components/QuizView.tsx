@@ -201,7 +201,7 @@ export const QuizView: React.FC<QuizViewProps> = ({ allWords }) => {
                     ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg scale-105"
                     : "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg scale-105"
                   : answered && option.id === currentQuestion.correct.id
-                  ? "bg-gradient-to-r from-green-100 to-emerald-100 text-slate-900 dark:text-slate-100 border-2 border-green-500"
+                  ? "bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 text-slate-900 dark:text-emerald-300 border-2 border-green-500"
                   : "bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-900 dark:text-slate-200 border-2 border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500"
               } ${
                 answered
