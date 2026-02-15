@@ -39,7 +39,11 @@ function saveCache(cache: Record<string, SentenceData[]>) {
 // Track which sentence index we've shown per word (so we cycle through them)
 const usedIndexes = new Map<string, number>();
 
-// ─── Fetch real sentences from Tatoeba ───
+// Circuit breaker for API calls
+let consecutiveApiFailures = 0;
+const MAX_API_FAILURES = 3;
+
+// ─── Fetch real sentences from MyMemory (Direct API, No Proxy) ───
 async function fetchSentencesFromTatoeba(
   frenchWord: string
 ): Promise<SentenceData[]> {
@@ -50,56 +54,55 @@ async function fetchSentencesFromTatoeba(
     return cache[frenchWord];
   }
 
-  try {
-    // We use a CORS proxy to avoid browser blocking
-    const randomPage = Math.floor(Math.random() * 2) + 1;
-    const targetUrl = `https://tatoeba.org/en/api_v0/search?from=fra&to=eng&query=${encodeURIComponent(
-      frenchWord
-    )}&limit=10&page=${randomPage}`;
-    
-    // Switch to corsproxy.io for better reliability
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+  // Circuit breaker: if API is failing, stop hammering it
+  if (consecutiveApiFailures >= MAX_API_FAILURES) {
+    return [];
+  }
 
-    // Create a timeout promise that rejects after 2.5 seconds
+  try {
+    // MyMemory API supports CORS directly, so no proxy needed!
+    // We search for the French word to get French -> English examples
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+      frenchWord
+    )}&langpair=fr|en`;
+    
+    // Create a timeout promise (10 seconds - give it time!)
     const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error("Request timed out")), 2500)
+      setTimeout(() => reject(new Error("Request timed out")), 10000)
     );
 
-    // Race the fetch against the timeout
     const response = await Promise.race([
-      fetch(proxyUrl),
+      fetch(url),
       timeoutPromise
     ]);
 
-    if (!response.ok) throw new Error("Tatoeba fetch failed");
+    if (!response.ok) throw new Error(`MyMemory fetch failed: ${response.status}`);
 
     const data = await response.json();
     const results: SentenceData[] = [];
 
-    for (const result of data.results || []) {
-      const frenchText: string = result.text;
+    // MyMemory returns a 'matches' array with various translation pairs
+    let validCount = 0;
+    for (const match of data.matches || []) {
+      const frenchText = match.segment;
+      const englishText = match.translation;
+
+      // Validate content
+      if (!frenchText || !englishText) continue;
 
       // Only use sentences that actually contain the word (case-insensitive)
-      const wordRegex = new RegExp(`\\b${frenchWord}\\b`, "i");
-      if (!wordRegex.test(frenchText)) continue;
-
-      // Skip very short (< 3 words) or very long (> 20 words) sentences
-      const wordCount = frenchText.split(/\s+/).length;
-      if (wordCount < 3 || wordCount > 20) continue;
-
-      // Find English translation
-      let englishText = "";
-      for (const translationGroup of result.translations || []) {
-        for (const t of translationGroup) {
-          if (t.lang === "eng" && t.text) {
-            englishText = t.text;
-            break;
-          }
-        }
-        if (englishText) break;
+      const wordRegex = new RegExp(`\\b${frenchWord}(e|s|x|es)?\\b`, "i");
+      const matchResult = frenchText.match(wordRegex);
+      
+      if (!matchResult) {
+        continue;
       }
+      
+      const actualMatchedWord = matchResult[0]; // e.g., "pommes" instead of "pomme"
 
-      if (!englishText) continue;
+      // Skip very short (< 3 words) or very long (> 25 words) sentences
+      const wordCount = frenchText.split(/\s+/).length;
+      if (wordCount < 3 || wordCount > 25) continue;
 
       // Create the blank version
       const blankSentence = frenchText.replace(wordRegex, "_____");
@@ -108,19 +111,23 @@ async function fetchSentencesFromTatoeba(
         frenchSentence: frenchText,
         englishTranslation: englishText,
         blankSentence,
-        answer: frenchWord,
+        answer: actualMatchedWord, // Use the actual word from the sentence so context is correct
       });
+      validCount++;
     }
+
+    // console.log(`MyMemory for "${frenchWord}": Found ${data.matches?.length || 0}, Valid: ${validCount}`);
 
     // Cache the results if we found any
     if (results.length > 0) {
       cache[frenchWord] = results;
       saveCache(cache);
+      consecutiveApiFailures = 0; // Reset on success
     }
 
     return results;
   } catch (err) {
-    // console.warn("Tatoeba API failed, falling back to static content", err);
+    consecutiveApiFailures++; // Increment failure count
     return [];
   }
 }
@@ -187,17 +194,27 @@ export const DynamicSentences: React.FC<DynamicSentencesProps> = ({
     return word;
   }, []);
 
+  // Pick a word known to have a static example
+  const pickSafeWord = useCallback((): VocabularyWord => {
+    const safePool = allWords.filter(w => w.exampleFrench && w.exampleEnglish);
+    if (safePool.length === 0) return allWords[Math.floor(Math.random() * allWords.length)];
+    return safePool[Math.floor(Math.random() * safePool.length)];
+  }, [allWords]);
+
   // Load a new sentence for a new word
-  const loadNextSentence = useCallback(async () => {
+  const loadNextSentence = useCallback(async (recursionDepth = 0) => {
     setIsLoading(true);
     setFeedback(null);
     setUserInput("");
     setShowHint(false);
 
-    const word = pickRandomWord();
+    // If we are recursing too much, force a safe word to break the loop
+    const useSafeMode = recursionDepth >= 3;
+    const word = useSafeMode ? pickSafeWord() : pickRandomWord();
+    
     setCurrentWord(word);
 
-    // Try Tatoeba first
+    // Try Tatoeba first (unless we are in safe mode loop, then skip api to save time)
     const sentences = await fetchSentencesFromTatoeba(word.french);
 
     if (sentences.length > 0) {
@@ -209,9 +226,15 @@ export const DynamicSentences: React.FC<DynamicSentencesProps> = ({
         setCurrentSentence(fallback);
       } else {
         // Last resort — skip this word and try another
-        setIsLoading(false);
-        loadNextSentence();
-        return;
+        // Limit recursion to avoid infinite loops and API spam
+        if (recursionDepth < 10) {
+          setIsLoading(false);
+          loadNextSentence(recursionDepth + 1);
+          return;
+        } else {
+          // If we hit depth 10, just stop trying to avoid crash
+          console.error("Failed to find a sentence after 10 attempts");
+        }
       }
     }
 
@@ -219,7 +242,7 @@ export const DynamicSentences: React.FC<DynamicSentencesProps> = ({
 
     // Focus input after loading
     setTimeout(() => inputRef.current?.focus(), 100);
-  }, [pickRandomWord]);
+  }, [pickRandomWord, pickSafeWord]);
 
   // Load first sentence on mount
   useEffect(() => {
