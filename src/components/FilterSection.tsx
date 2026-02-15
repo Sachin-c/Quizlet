@@ -1,22 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import type { VocabularyWord, CEFRLevel, Category } from "../types";
 
 interface FilterSectionProps {
   words: VocabularyWord[];
   onFilterChange: (filtered: VocabularyWord[]) => void;
+  selectedLevels: Set<CEFRLevel>;
+  setSelectedLevels: (levels: Set<CEFRLevel>) => void;
+  selectedCategories: Set<Category>;
+  setSelectedCategories: (categories: Set<Category>) => void;
 }
 
 export const FilterSection: React.FC<FilterSectionProps> = ({
   words,
   onFilterChange,
+  selectedLevels,
+  setSelectedLevels,
+  selectedCategories,
+  setSelectedCategories,
 }) => {
-  const [selectedLevels, setSelectedLevels] = useState<Set<CEFRLevel>>(
-    new Set()
-  );
-  const [selectedCategories, setSelectedCategories] = useState<Set<Category>>(
-    new Set()
-  );
-
   const levels: CEFRLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
   const categories: Category[] = [
     "Things",

@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import type { VocabularyWord } from "../types";
+import type { VocabularyWord, CEFRLevel, Category } from "../types";
 import { StorageManager } from "../utils/storage";
 import { GamificationManager } from "../utils/gamification";
 import { GenderBadge } from "./GenderBadge";
+import { FilterSection } from "./FilterSection";
 
 interface DynamicSentencesProps {
   allWords: VocabularyWord[];
@@ -17,7 +18,7 @@ interface SentenceData {
 }
 
 // ─── Persistent cache: word → array of fetched sentences ───
-const CACHE_KEY = "tatoeba_sentence_cache";
+const CACHE_KEY = "tatoeba_sentence_cache_v2";
 
 function loadCache(): Record<string, SentenceData[]> {
   try {
@@ -163,6 +164,10 @@ export const DynamicSentences: React.FC<DynamicSentencesProps> = ({
   allWords,
   onProgressUpdate,
 }) => {
+  const [filteredWords, setFilteredWords] = useState<VocabularyWord[]>(allWords);
+  const [selectedLevels, setSelectedLevels] = useState<Set<CEFRLevel>>(new Set());
+  const [selectedCategories, setSelectedCategories] = useState<Set<Category>>(new Set());
+  
   const [currentWord, setCurrentWord] = useState<VocabularyWord | null>(null);
   const [currentSentence, setCurrentSentence] = useState<SentenceData | null>(null);
   const [userInput, setUserInput] = useState("");
@@ -172,82 +177,156 @@ export const DynamicSentences: React.FC<DynamicSentencesProps> = ({
   const [sessionStats, setSessionStats] = useState({ correct: 0, incorrect: 0, total: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Pool of non-verb words to pull from
-  const wordPool = useRef(
-    allWords.filter((w) => !w.isVerb && w.french.length > 2)
-  );
-
-  // Pick a random word that we haven't used recently
+  // Track recent words to avoid immediate repeats
   const recentWords = useRef<string[]>([]);
 
-  const pickRandomWord = useCallback((): VocabularyWord => {
-    const pool = wordPool.current.filter(
-      (w) => !recentWords.current.includes(w.french)
-    );
-    const candidates = pool.length > 0 ? pool : wordPool.current;
-    const word = candidates[Math.floor(Math.random() * candidates.length)];
+  // Smart Selection: Prioritize new words and struggling words from the FILTERED list
+  const pickRandomWord = useCallback((): VocabularyWord | null => {
+    const progress = StorageManager.getProgress();
+    
+    // Apply technical constraints (no verbs, min length) to the user's filtered list
+    const pool = filteredWords.filter((w) => !w.isVerb && w.french.length > 2);
+    
+    if (pool.length === 0) return null;
+    
+    // 1. Filter out recently seen words
+    const available = pool.filter(w => !recentWords.current.includes(w.french));
+    const candidates = available.length > 0 ? available : pool;
 
-    // Track last 20 words shown
-    recentWords.current.push(word.french);
+    // 2. Categorize candidates
+    const newWords: VocabularyWord[] = [];
+    const learningWords: VocabularyWord[] = [];
+    const masteredWords: VocabularyWord[] = [];
+
+    candidates.forEach(w => {
+      const p = progress.wordProgress[w.id];
+      if (!p) {
+        newWords.push(w);
+      } else if (p.correct < 5 || (p.srs && p.srs.interval < 21)) {
+        learningWords.push(w);
+      } else {
+        masteredWords.push(w);
+      }
+    });
+
+    // 3. Probabilistic Selection
+    // 70% New words (keep moving forward)
+    // 20% Learning words (review weak spots)
+    // 10% Mastered words (maintenance)
+    let selectedWord: VocabularyWord;
+    const r = Math.random();
+
+    if (r < 0.7 && newWords.length > 0) {
+      selectedWord = newWords[Math.floor(Math.random() * newWords.length)];
+    } else if (r < 0.9 && learningWords.length > 0) {
+      selectedWord = learningWords[Math.floor(Math.random() * learningWords.length)];
+    } else if (masteredWords.length > 0) {
+      selectedWord = masteredWords[Math.floor(Math.random() * masteredWords.length)];
+    } else {
+      // Fallback
+      const leftovers = [...newWords, ...learningWords, ...masteredWords];
+      selectedWord = leftovers[Math.floor(Math.random() * leftovers.length)];
+    }
+
+    // 4. Update recent history
+    recentWords.current.push(selectedWord.french);
     if (recentWords.current.length > 20) recentWords.current.shift();
 
-    return word;
-  }, []);
+    return selectedWord;
+  }, [filteredWords]);
 
-  // Pick a word known to have a static example
-  const pickSafeWord = useCallback((): VocabularyWord => {
-    const safePool = allWords.filter(w => w.exampleFrench && w.exampleEnglish);
-    if (safePool.length === 0) return allWords[Math.floor(Math.random() * allWords.length)];
+  // Pick a word known to have a static example, adhering to filters if possible
+  const pickSafeWord = useCallback((): VocabularyWord | null => {
+    const pool = filteredWords.filter((w) => !w.isVerb && w.french.length > 2);
+    if (pool.length === 0) return null;
+
+    const safePool = pool.filter(w => w.exampleFrench && w.exampleEnglish);
+    // STRICT MODE: If we are asking for a safe word, we MUST return one with an example.
+    // Otherwise we risk infinite API loops.
+    if (safePool.length === 0) return null; 
+    
     return safePool[Math.floor(Math.random() * safePool.length)];
-  }, [allWords]);
+  }, [filteredWords]);
 
   // Load a new sentence for a new word
   const loadNextSentence = useCallback(async (recursionDepth = 0) => {
-    setIsLoading(true);
-    setFeedback(null);
-    setUserInput("");
-    setShowHint(false);
+    // Only set loading on first attempt to avoid flicker during recursion
+    if (recursionDepth === 0) {
+      setIsLoading(true);
+      setFeedback(null);
+      setUserInput("");
+      setShowHint(false);
+      setCurrentSentence(null); // Clear previous sentence!
+    }
 
-    // If we are recursing too much, force a safe word to break the loop
-    const useSafeMode = recursionDepth >= 3;
-    const word = useSafeMode ? pickSafeWord() : pickRandomWord();
+    // If we are recursing, force a safe word to break the loop faster
+    const useSafeMode = recursionDepth >= 2; // Aggressive safety
+    let word = useSafeMode ? pickSafeWord() : pickRandomWord();
     
+    // If safe word failed (e.g. no animals have examples), we must STOP.
+    // Do not fallback to random word if we are specifically trying to be safe.
+    if (!word && useSafeMode) {
+        // No safe words exist in this filter. Stop.
+        setCurrentWord(null);
+        setCurrentSentence(null);
+        setIsLoading(false);
+        return;
+    }
+
+    // Fallback for non-safe mode if random failed (empty pool)
+    if (!word) {
+      setCurrentWord(null);
+      setCurrentSentence(null);
+      setIsLoading(false);
+      return;
+    }
+
     setCurrentWord(word);
 
     // Try Tatoeba first (unless we are in safe mode loop, then skip api to save time)
-    const sentences = await fetchSentencesFromTatoeba(word.french);
+    let sentences: SentenceData[] = [];
+    if (recursionDepth < 2 && !useSafeMode) {
+        sentences = await fetchSentencesFromTatoeba(word.french);
+    }
 
     if (sentences.length > 0) {
       setCurrentSentence(pickSentence(sentences, word.french));
+      setIsLoading(false);
     } else {
       // Fallback to the word's own example sentence
       const fallback = getFallbackSentence(word);
       if (fallback) {
         setCurrentSentence(fallback);
+        setIsLoading(false);
       } else {
-        // Last resort — skip this word and try another
-        // Limit recursion to avoid infinite loops and API spam
-        if (recursionDepth < 10) {
-          setIsLoading(false);
+        // Last resort — try another word
+        // Limit recursion severly to prevent 429s
+        if (recursionDepth < 5) {
+          // Wait longer to respect API limits
+          await new Promise(r => setTimeout(r, 1000));
           loadNextSentence(recursionDepth + 1);
           return;
         } else {
-          // If we hit depth 10, just stop trying to avoid crash
-          console.error("Failed to find a sentence after 10 attempts");
+          console.error("Failed to find a sentence. Stopping to prevent API spam.");
+          setIsLoading(false);
         }
       }
     }
-
-    setIsLoading(false);
-
-    // Focus input after loading
-    setTimeout(() => inputRef.current?.focus(), 100);
+    
+    // Focus input logic handled by useEffect
   }, [pickRandomWord, pickSafeWord]);
 
-  // Load first sentence on mount
+  // Focus effect when loading finishes and we have a sentence
+  useEffect(() => {
+    if (!isLoading && currentSentence) {
+        setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, [isLoading, currentSentence]);
+
+  // Load first sentence on mount or when filter changes
   useEffect(() => {
     loadNextSentence();
-  }, []);
+  }, [filteredWords]); // Reload when filter changes
 
   const speak = (text: string) => {
     const utterance = new SpeechSynthesisUtterance(text);
@@ -329,11 +408,55 @@ export const DynamicSentences: React.FC<DynamicSentencesProps> = ({
       ? Math.round((sessionStats.correct / sessionStats.total) * 100)
       : 0;
 
-  // ─── Loading State ───
-  if (isLoading || !currentSentence || !currentWord) {
+  // Check if we have valid words to play with
+  const validWordsCount = filteredWords.filter(w => !w.isVerb && w.french.length > 2).length;
+
+  if (validWordsCount === 0) {
     return (
-      <div className="max-w-2xl mx-auto mt-8">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-10 text-center border border-slate-100 dark:border-slate-700">
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-black text-slate-800 dark:text-slate-100">
+              Sentence Practice
+            </h1>
+        </div>
+        <FilterSection
+          words={allWords}
+          onFilterChange={setFilteredWords}
+          selectedLevels={selectedLevels}
+          setSelectedLevels={setSelectedLevels}
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+        />
+        
+        <div className="text-center bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-10 border border-amber-100 dark:border-amber-800">
+          <div className="text-4xl mb-4">🔍</div>
+          <h3 className="text-lg font-bold text-amber-800 dark:text-amber-200 mb-2">
+            No suitable words found
+          </h3>
+          <p className="text-amber-700 dark:text-amber-300">
+            Please allow <strong>Nouns</strong> or <strong>Adjectives</strong> in your filter.<br/>
+            (Verbs are currently not supported in sentences mode)
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Loading State ───
+  if (isLoading) {
+    return (
+      <div className="max-w-2xl mx-auto space-y-6 mt-8">
+         {/* Show filter even while loading so user can change it */}
+         <FilterSection
+            words={allWords}
+            onFilterChange={setFilteredWords}
+            selectedLevels={selectedLevels}
+            setSelectedLevels={setSelectedLevels}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+         />
+         
+         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-10 text-center border border-slate-100 dark:border-slate-700">
           <div className="flex justify-center mb-6">
             <div className="relative w-12 h-12">
               <div className="absolute inset-0 rounded-full border-4 border-slate-200 dark:border-slate-600" />
@@ -346,6 +469,39 @@ export const DynamicSentences: React.FC<DynamicSentencesProps> = ({
         </div>
       </div>
     );
+  }
+
+  // ─── Error State (Failed to load) ───
+  if (!currentSentence || !currentWord) {
+    return (
+        <div className="max-w-2xl mx-auto space-y-6 mt-8">
+            <FilterSection
+                words={allWords}
+                onFilterChange={setFilteredWords}
+                selectedLevels={selectedLevels}
+                setSelectedLevels={setSelectedLevels}
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
+            />
+            
+            <div className="bg-red-50 dark:bg-red-900/20 rounded-2xl p-10 text-center border border-red-100 dark:border-red-800">
+                <div className="text-4xl mb-4">😕</div>
+                <h3 className="text-lg font-bold text-red-800 dark:text-red-200 mb-2">
+                    Could not find a sentence
+                </h3>
+                <p className="text-red-700 dark:text-red-300 mb-6">
+                    We tried looking for sentences but couldn't find one for the current words.
+                    <br/>MyMemory API might be busy or the words don't have examples yet.
+                </p>
+                <button
+                    onClick={() => loadNextSentence()}
+                    className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors shadow-lg"
+                >
+                    Try Again
+                </button>
+            </div>
+        </div>
+    )
   }
 
   return (
@@ -372,6 +528,15 @@ export const DynamicSentences: React.FC<DynamicSentencesProps> = ({
           </div>
         )}
       </div>
+
+      <FilterSection
+        words={allWords}
+        onFilterChange={setFilteredWords}
+        selectedLevels={selectedLevels}
+        setSelectedLevels={setSelectedLevels}
+        selectedCategories={selectedCategories}
+        setSelectedCategories={setSelectedCategories}
+      />
 
       {/* Main Card */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 overflow-hidden">

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import type { VocabularyWord } from "../types";
+import type { VocabularyWord, CEFRLevel, Category } from "../types";
 import { StorageManager } from "../utils/storage";
 import { Flashcard } from "./Flashcard";
 import { FilterSection } from "./FilterSection";
@@ -9,6 +9,8 @@ interface StudyViewProps {
 }
 
 export const StudyView: React.FC<StudyViewProps> = ({ allWords }) => {
+  const [selectedLevels, setSelectedLevels] = useState<Set<CEFRLevel>>(new Set());
+  const [selectedCategories, setSelectedCategories] = useState<Set<Category>>(new Set());
   const [filteredWords, setFilteredWords] = useState(allWords);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -93,7 +95,14 @@ export const StudyView: React.FC<StudyViewProps> = ({ allWords }) => {
   if (filteredWords.length === 0) {
     return (
       <div className="max-w-4xl mx-auto space-y-6">
-        <FilterSection words={allWords} onFilterChange={setFilteredWords} />
+        <FilterSection
+          words={allWords}
+          onFilterChange={setFilteredWords}
+          selectedLevels={selectedLevels}
+          setSelectedLevels={setSelectedLevels}
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+        />
         <div className="text-center bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-2xl shadow-lg p-10 border border-indigo-100">
           <div className="text-5xl mb-4 opacity-60">🔍</div>
           <p className="text-gray-700 text-lg font-semibold mb-2">
@@ -109,7 +118,14 @@ export const StudyView: React.FC<StudyViewProps> = ({ allWords }) => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-5">
-      <FilterSection words={allWords} onFilterChange={handleFilterChange} />
+      <FilterSection
+        words={allWords}
+        onFilterChange={handleFilterChange}
+        selectedLevels={selectedLevels}
+        setSelectedLevels={setSelectedLevels}
+        selectedCategories={selectedCategories}
+        setSelectedCategories={setSelectedCategories}
+      />
 
       {/* Study Container */}
       <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/80 dark:border-slate-700">
