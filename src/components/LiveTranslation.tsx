@@ -21,7 +21,6 @@ export const LiveTranslation: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<TranslationEntry[]>([]);
   const [currentResult, setCurrentResult] = useState<TranslationResult | null>(null);
-  const [showTip, setShowTip] = useState(true);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
