@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import type { VocabularyWord } from "../types";
+import type { VocabularyWord, CEFRLevel, Category } from "../types";
 import { StorageManager } from "../utils/storage";
 import { FilterSection } from "./FilterSection";
 import { GenderBadge } from "./GenderBadge";
@@ -14,12 +14,16 @@ interface QuizQuestion {
 }
 
 export const QuizView: React.FC<QuizViewProps> = ({ allWords }) => {
-  const [filteredWords, setFilteredWords] = useState(allWords);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [filteredWords, setFilteredWords] = useState<VocabularyWord[]>(allWords);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+
+  // local filter state
+  const [selectedLevels, setSelectedLevels] = useState<Set<CEFRLevel>>(new Set());
+  const [selectedCategories, setSelectedCategories] = useState<Set<Category>>(new Set());
 
   // Generate quiz questions
   useEffect(() => {
@@ -127,7 +131,14 @@ export const QuizView: React.FC<QuizViewProps> = ({ allWords }) => {
   if (questions.length === 0 || !currentQuestion) {
     return (
       <div className="max-w-4xl mx-auto space-y-8">
-        <FilterSection words={allWords} onFilterChange={handleFilterChange} />
+        <FilterSection
+          words={allWords}
+          onFilterChange={handleFilterChange}
+          selectedLevels={selectedLevels}
+          setSelectedLevels={setSelectedLevels}
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+        />
         <div className="text-center bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl shadow-lg p-12 border border-indigo-200">
           <div className="text-6xl mb-4 opacity-60">📝</div>
           <p className="text-gray-700 text-xl font-semibold mb-2">
@@ -143,7 +154,14 @@ export const QuizView: React.FC<QuizViewProps> = ({ allWords }) => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <FilterSection words={allWords} onFilterChange={handleFilterChange} />
+      <FilterSection
+        words={allWords}
+        onFilterChange={handleFilterChange}
+        selectedLevels={selectedLevels}
+        setSelectedLevels={setSelectedLevels}
+        selectedCategories={selectedCategories}
+        setSelectedCategories={setSelectedCategories}
+      />
 
       {/* Quiz Container */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8 border border-slate-200 dark:border-slate-700">

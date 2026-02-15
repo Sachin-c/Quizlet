@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import type { VocabularyWord } from "../types";
+import type { VocabularyWord, CEFRLevel, Category } from "../types";
 import { StorageManager } from "../utils/storage";
 import { FilterSection } from "./FilterSection";
 import { GenderBadge } from "./GenderBadge";
@@ -12,6 +12,10 @@ type TypingDirection = "english-to-french" | "french-to-english";
 
 export const TypingMode: React.FC<TypingModeProps> = ({ allWords }) => {
   const [filteredWords, setFilteredWords] = useState(allWords);
+  // local filter state
+  const [selectedLevels, setSelectedLevels] = useState<Set<CEFRLevel>>(new Set());
+  const [selectedCategories, setSelectedCategories] = useState<Set<Category>>(new Set());
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userInput, setUserInput] = useState("");
   const [showResult, setShowResult] = useState(false);
@@ -179,7 +183,14 @@ export const TypingMode: React.FC<TypingModeProps> = ({ allWords }) => {
   if (filteredWords.length === 0) {
     return (
       <div className="max-w-4xl mx-auto space-y-6">
-        <FilterSection words={allWords} onFilterChange={handleFilterChange} />
+        <FilterSection
+          words={allWords}
+          onFilterChange={handleFilterChange}
+          selectedLevels={selectedLevels}
+          setSelectedLevels={setSelectedLevels}
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+        />
         <div className="text-center bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-10 border border-slate-200 dark:border-slate-700">
           <div className="text-5xl mb-4 opacity-60">✍️</div>
           <p className="text-slate-700 dark:text-slate-200 text-lg font-semibold mb-2">
@@ -205,7 +216,14 @@ export const TypingMode: React.FC<TypingModeProps> = ({ allWords }) => {
 
   return (
     <div className="max-w-2xl mx-auto space-y-5">
-      <FilterSection words={allWords} onFilterChange={handleFilterChange} />
+      <FilterSection
+        words={allWords}
+        onFilterChange={handleFilterChange}
+        selectedLevels={selectedLevels}
+        setSelectedLevels={setSelectedLevels}
+        selectedCategories={selectedCategories}
+        setSelectedCategories={setSelectedCategories}
+      />
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
