@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import type { VocabularyWord } from "../types";
 import { StorageManager } from "../utils/storage";
 import { FilterSection } from "./FilterSection";
+import { GenderBadge } from "./GenderBadge";
 
 interface TypingModeProps {
   allWords: VocabularyWord[];
@@ -251,7 +252,14 @@ export const TypingMode: React.FC<TypingModeProps> = ({ allWords }) => {
             {direction === "english-to-french" ? "Type in French" : "Type in English"}
           </p>
 
-          <p className="text-3xl md:text-4xl font-black text-slate-800 dark:text-slate-100 mb-4">{questionText}</p>
+          <p className="text-3xl md:text-4xl font-black text-slate-800 dark:text-slate-100 mb-2">{questionText}</p>
+
+          {/* Gender Badge - for French words */}
+          {direction === "french-to-english" && currentWord && !currentWord.isVerb && (
+            <div className="mb-4">
+              <GenderBadge frenchWord={currentWord.french} showArticle={true} size="md" />
+            </div>
+          )}
 
           {/* Toggle Direction (Small link) */}
           <button 

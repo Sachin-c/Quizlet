@@ -9,12 +9,13 @@ import { ProgressView } from "./components/ProgressView";
 import { Settings } from "./components/Settings";
 import { TypingMode } from "./components/TypingMode";
 import { SRSStudy } from "./components/SRSStudy";
-import { FillBlankMode } from "./components/FillBlankMode";
+import { LiveTranslation } from "./components/LiveTranslation";
+import { DynamicSentences } from "./components/DynamicSentences";
 import { vocabularyData, commonVerbs } from "./data/vocabulary";
 import { StorageManager } from "./utils/storage";
 import type { UserStats } from "./types";
 
-type ViewType = "study" | "quiz" | "verbs" | "stats" | "settings" | "typing" | "srs" | "fillblank";
+type ViewType = "study" | "quiz" | "verbs" | "stats" | "settings" | "typing" | "srs" | "translate" | "livesentences";
 
 function App() {
   const [currentView, setCurrentView] = useState<ViewType>("srs"); // Default to Smart Review
@@ -80,7 +81,8 @@ function App() {
         onShowSettings={() => setCurrentView("settings")}
         onShowTyping={() => setCurrentView("typing")}
         onShowSRS={() => setCurrentView("srs")}
-        onShowFillBlank={() => setCurrentView("fillblank")}
+        onShowTranslate={() => setCurrentView("translate")}
+        onShowLiveSentences={() => setCurrentView("livesentences")}
         activeView={currentView}
         stats={userStats}
         theme={theme}
@@ -102,11 +104,14 @@ function App() {
             onProgressUpdate={refreshStats}
           />
         )}
-        {currentView === "fillblank" && (
-          <FillBlankMode
+        {currentView === "livesentences" && (
+          <DynamicSentences
             allWords={vocabularyData}
             onProgressUpdate={refreshStats}
           />
+        )}
+        {currentView === "translate" && (
+          <LiveTranslation />
         )}
         {currentView === "study" && (
           <StudyView

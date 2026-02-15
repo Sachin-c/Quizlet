@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { VocabularyWord } from "../types";
 import { StorageManager } from "../utils/storage";
 import { FilterSection } from "./FilterSection";
+import { GenderBadge } from "./GenderBadge";
 
 interface QuizViewProps {
   allWords: VocabularyWord[];
@@ -181,9 +182,12 @@ export const QuizView: React.FC<QuizViewProps> = ({ allWords }) => {
                 {currentQuestion.correct.french}
               </p>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 text-center">
-              Difficulty: {currentQuestion.correct.cefr} •{" "}
-              {currentQuestion.correct.category}
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 text-center flex items-center justify-center gap-2">
+              <span>Difficulty: {currentQuestion.correct.cefr} •{" "}
+              {currentQuestion.correct.category}</span>
+              {!currentQuestion.correct.isVerb && (
+                <GenderBadge frenchWord={currentQuestion.correct.french} size="sm" />
+              )}
             </p>
           </div>
         </div>

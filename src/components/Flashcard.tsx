@@ -3,6 +3,7 @@ import type { VocabularyWord } from "../types";
 import { getFrenchPhonetics } from "../utils/phonetics.ts";
 import { VerbConjugation } from "./VerbConjugation";
 import { AudioPlayer, ClickableTranscript } from "./AudioPlayer";
+import { GenderBadge } from "./GenderBadge";
 
 interface FlashcardProps {
   word: VocabularyWord;
@@ -58,6 +59,13 @@ export const Flashcard: React.FC<FlashcardProps> = ({
           >
             {isFlipped ? word.english : word.french}
           </p>
+
+          {/* Gender Badge - shown on French side for nouns */}
+          {!isFlipped && !word.isVerb && (
+            <div className="mt-1 mb-1">
+              <GenderBadge frenchWord={word.french} showArticle={true} size="md" />
+            </div>
+          )}
 
           {/* Phonetics */}
           <p

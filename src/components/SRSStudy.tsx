@@ -5,6 +5,7 @@ import { GamificationManager } from "../utils/gamification";
 import { getFrenchPhonetics } from "../utils/phonetics";
 import { QuizUtils, type QuizQuestion } from "../utils/quiz";
 import { AudioPlayer } from "./AudioPlayer";
+import { GenderBadge } from "./GenderBadge";
 
 interface SRSStudyProps {
   allWords: VocabularyWord[];
@@ -272,9 +273,16 @@ export const SRSStudy: React.FC<SRSStudyProps> = ({ allWords, onProgressUpdate }
             
             <div className="py-6">
                 <h1 className="text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100 mb-2">{currentQuestion.word.french}</h1>
-                <p className="text-lg text-slate-500 dark:text-slate-400 font-serif mb-4">
+                <p className="text-lg text-slate-500 dark:text-slate-400 font-serif mb-2">
                    /{getFrenchPhonetics(currentQuestion.word.french)}/
                 </p>
+
+                {/* Gender Badge */}
+                {!currentQuestion.word.isVerb && (
+                  <div className="mb-3">
+                    <GenderBadge frenchWord={currentQuestion.word.french} showArticle={true} size="md" />
+                  </div>
+                )}
                 
                 {/* Dual-Speed Audio Controls */}
                 <div className="flex justify-center mb-4">
