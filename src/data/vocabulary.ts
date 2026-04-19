@@ -7862,3 +7862,7 @@ export const commonVerbs: VocabularyWord[] = [
 
 // Combine all vocabulary - add verbs to main vocabulary list
 vocabularyData.push(...commonVerbs);
+
+// Merge expanded vocabulary (A2/B1/B2 — work, gym, opinions, connectors, abstract)
+import { expandedVocabulary } from "./vocabularyExpansion";
+vocabularyData.push(...expandedVocabulary);

@@ -1,33 +1,36 @@
 import { useState, useEffect, useCallback } from "react";
 import "./App.css";
 import { Navigation } from "./components/Navigation";
-import { SearchBar } from "./components/SearchBar";
-import { StudyView } from "./components/StudyView";
-import { QuizView } from "./components/QuizView";
-import { VerbStudy } from "./components/VerbStudy";
+import { LearnHub } from "./components/LearnHub";
+import { PracticeHub } from "./components/PracticeHub";
+import { ExpressHub } from "./components/ExpressHub";
 import { ProgressView } from "./components/ProgressView";
 import { Settings } from "./components/Settings";
-import { TypingMode } from "./components/TypingMode";
-import { SRSStudy } from "./components/SRSStudy";
-import { LiveTranslation } from "./components/LiveTranslation";
-import { DynamicSentences } from "./components/DynamicSentences";
-import { vocabularyData, commonVerbs } from "./data/vocabulary";
+import { vocabularyData } from "./data/vocabulary";
 import { StorageManager } from "./utils/storage";
 import type { UserStats } from "./types";
 
-type ViewType = "study" | "quiz" | "verbs" | "stats" | "settings" | "typing" | "srs" | "translate" | "livesentences";
+/**
+ * App Layout — 4 core modes mapped to TEF/TCF exam structure:
+ *
+ *  🧠 Learn    → Pre-exam study (SRS, Flashcards, Verb Tenses, Conjugations)
+ *  📝 Practice → TCF: Lexique & Structure + Compréhension (Adaptive, Sentences, Quiz, Typing)
+ *  💬 Express  → TCF: Expression Orale + Écrite (Conversations, Translation)
+ *  📊 Progress → Dashboard & Stats
+ */
+
+type ViewType = "learn" | "practice" | "express" | "progress" | "settings";
 
 function App() {
-  const [currentView, setCurrentView] = useState<ViewType>("srs"); // Default to Smart Review
+  const [currentView, setCurrentView] = useState<ViewType>("learn");
   const [refreshKey, setRefreshKey] = useState(0);
-  const [searchTerm, setSearchTerm] = useState("");
   const [userStats, setUserStats] = useState<UserStats>(() => StorageManager.getProgress().stats);
-  
+
   // Theme State
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("theme") === "dark" || 
-             (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches) 
+      return localStorage.getItem("theme") === "dark" ||
+             (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)
              ? "dark" : "light";
     }
     return "light";
@@ -53,7 +56,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // Initialize progress on app load
     refreshStats();
   }, [refreshStats]);
 
@@ -61,28 +63,14 @@ function App() {
     refreshStats();
   };
 
-  // Filter vocabulary based on search term
-  const filteredVocabulary =
-    searchTerm.trim() === ""
-      ? vocabularyData
-      : vocabularyData.filter(
-          (word) =>
-            word.french.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            word.english.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 transition-colors duration-300">
       <Navigation
-        onShowStudy={() => setCurrentView("study")}
-        onShowQuiz={() => setCurrentView("quiz")}
-        onShowVerbs={() => setCurrentView("verbs")}
-        onShowStats={() => setCurrentView("stats")}
+        onShowLearn={() => setCurrentView("learn")}
+        onShowPractice={() => setCurrentView("practice")}
+        onShowExpress={() => setCurrentView("express")}
+        onShowProgress={() => setCurrentView("progress")}
         onShowSettings={() => setCurrentView("settings")}
-        onShowTyping={() => setCurrentView("typing")}
-        onShowSRS={() => setCurrentView("srs")}
-        onShowTranslate={() => setCurrentView("translate")}
-        onShowLiveSentences={() => setCurrentView("livesentences")}
         activeView={currentView}
         stats={userStats}
         theme={theme}
@@ -90,45 +78,24 @@ function App() {
       />
 
       <main className="py-6 px-4">
-        {(currentView === "study" || currentView === "quiz") && (
-          <SearchBar
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            resultCount={filteredVocabulary.length}
-          />
-        )}
-
-        {currentView === "srs" && (
-          <SRSStudy 
+        {currentView === "learn" && (
+          <LearnHub
             allWords={vocabularyData}
             onProgressUpdate={refreshStats}
+            refreshKey={refreshKey}
           />
         )}
-        {currentView === "livesentences" && (
-          <DynamicSentences
+        {currentView === "practice" && (
+          <PracticeHub
             allWords={vocabularyData}
             onProgressUpdate={refreshStats}
+            refreshKey={refreshKey}
           />
         )}
-        {currentView === "translate" && (
-          <LiveTranslation />
+        {currentView === "express" && (
+          <ExpressHub />
         )}
-        {currentView === "study" && (
-          <StudyView
-            key={`study-${refreshKey}`}
-            allWords={filteredVocabulary}
-          />
-        )}
-        {currentView === "typing" && (
-          <TypingMode key={`typing-${refreshKey}`} allWords={vocabularyData} />
-        )}
-        {currentView === "quiz" && (
-          <QuizView key={`quiz-${refreshKey}`} allWords={filteredVocabulary} />
-        )}
-        {currentView === "verbs" && (
-          <VerbStudy key={`verbs-${refreshKey}`} allWords={commonVerbs} />
-        )}
-        {currentView === "stats" && (
+        {currentView === "progress" && (
           <ProgressView key={`stats-${refreshKey}`} allWords={vocabularyData} />
         )}
         {currentView === "settings" && (

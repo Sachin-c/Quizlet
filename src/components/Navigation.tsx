@@ -5,15 +5,11 @@ import type { UserStats } from "../types";
 import { GamificationManager } from "../utils/gamification";
 
 export interface NavigationProps {
-  onShowStats: () => void;
-  onShowStudy: () => void;
-  onShowQuiz: () => void;
-  onShowVerbs: () => void;
+  onShowLearn: () => void;
+  onShowPractice: () => void;
+  onShowExpress: () => void;
+  onShowProgress: () => void;
   onShowSettings: () => void;
-  onShowTyping: () => void;
-  onShowSRS: () => void;
-  onShowTranslate: () => void;
-  onShowLiveSentences: () => void;
   activeView: string;
   stats: UserStats;
   theme: "light" | "dark";
@@ -24,81 +20,61 @@ interface NavItem {
   key: string;
   label: string;
   icon: string;
+  sublabel: string;
   onClick: () => void;
-  highlight?: boolean;
+  gradient: string;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
-  onShowStats,
-  onShowStudy,
-  onShowQuiz,
-  onShowVerbs,
+  onShowLearn,
+  onShowPractice,
+  onShowExpress,
+  onShowProgress,
   onShowSettings,
-  onShowTyping,
-  onShowSRS,
-  onShowTranslate,
-  onShowLiveSentences,
   activeView,
   stats,
   theme,
   onToggleTheme,
 }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const moreRef = useRef<HTMLDivElement>(null);
   const levelProgress = GamificationManager.getLevelProgress(stats.xp);
 
   const isActive = (view: string) => activeView === view;
 
-  // Close "More" dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
-        setIsMoreOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Primary nav items — always visible on desktop
-  const primaryItems: NavItem[] = [
-    { key: "srs", label: "Smart", icon: "🧠", onClick: onShowSRS, highlight: true },
-    { key: "study", label: "Study", icon: "📚", onClick: onShowStudy },
-    { key: "livesentences", label: "Sentences", icon: "🌐", onClick: onShowLiveSentences },
-    { key: "translate", label: "Translate", icon: "🔄", onClick: onShowTranslate },
-    { key: "quiz", label: "Quiz", icon: "❓", onClick: onShowQuiz },
+  const navItems: NavItem[] = [
+    {
+      key: "learn",
+      label: "Learn",
+      icon: "🧠",
+      sublabel: "Study & Acquire",
+      onClick: onShowLearn,
+      gradient: "from-indigo-600 to-purple-600",
+    },
+    {
+      key: "practice",
+      label: "Practice",
+      icon: "📝",
+      sublabel: "Exam Drills",
+      onClick: onShowPractice,
+      gradient: "from-cyan-600 to-blue-600",
+    },
+    {
+      key: "express",
+      label: "Express",
+      icon: "💬",
+      sublabel: "Speak & Write",
+      onClick: onShowExpress,
+      gradient: "from-rose-600 to-pink-600",
+    },
+    {
+      key: "progress",
+      label: "Progress",
+      icon: "📊",
+      sublabel: "Your Stats",
+      onClick: onShowProgress,
+      gradient: "from-emerald-600 to-teal-600",
+    },
   ];
-
-  // Secondary nav items — inside "More" dropdown on desktop
-  const moreItems: NavItem[] = [
-    { key: "typing", label: "Typing Practice", icon: "✍️", onClick: onShowTyping },
-    { key: "verbs", label: "Verb Conjugation", icon: "🔤", onClick: onShowVerbs },
-    { key: "stats", label: "Progress Stats", icon: "📊", onClick: onShowStats },
-  ];
-
-  // All items for mobile menu
-  const allItems = [...primaryItems, ...moreItems];
-
-  // Check if any "more" item is currently active
-  const moreIsActive = moreItems.some((item) => isActive(item.key));
-
-  const renderNavButton = (item: NavItem, compact = false) => (
-    <button
-      key={item.key}
-      onClick={item.onClick}
-      className={`px-3 py-1.5 rounded-lg font-semibold text-sm transition-all duration-200 whitespace-nowrap ${
-        isActive(item.key)
-          ? "bg-blue-600 text-white shadow-lg scale-105"
-          : item.highlight
-          ? "bg-slate-800 text-slate-200 hover:bg-slate-700 ring-1 ring-slate-700"
-          : "text-slate-400 hover:text-white hover:bg-slate-800"
-      } ${compact ? "text-xs px-2 py-1" : ""}`}
-    >
-      {item.icon && <span className="mr-1">{item.icon}</span>}
-      {item.label}
-    </button>
-  );
 
   return (
     <nav className="bg-slate-900 border-b border-slate-800 text-white shadow-lg sticky top-0 z-50 transition-colors duration-300">
@@ -125,87 +101,50 @@ export const Navigation: React.FC<NavigationProps> = ({
                 level={stats.level}
                 progressPercent={levelProgress.percent}
               />
-
-              {/* Theme Toggle */}
-              <button
-                onClick={onToggleTheme}
-                className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition-all duration-200 border border-slate-700 hover:border-slate-600"
-                title={`Switch to ${theme === "light" ? "Dark" : "Light"} Mode`}
-              >
-                {theme === "light" ? "🌙" : "☀️"}
-              </button>
             </div>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
-            {/* Primary Items */}
-            {primaryItems.map((item) => renderNavButton(item))}
-
-            {/* More Dropdown */}
-            <div className="relative" ref={moreRef}>
+          {/* Desktop Navigation — Clean 4-item layout */}
+          <div className="hidden lg:flex items-center gap-1.5">
+            {navItems.map((item) => (
               <button
-                onClick={() => setIsMoreOpen(!isMoreOpen)}
-                className={`px-3 py-1.5 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center gap-1 ${
-                  moreIsActive
-                    ? "bg-blue-600 text-white shadow-lg"
+                key={item.key}
+                onClick={item.onClick}
+                className={`relative px-4 py-2 rounded-xl font-bold text-sm transition-all duration-200 flex items-center gap-2 ${
+                  isActive(item.key)
+                    ? `bg-gradient-to-r ${item.gradient} text-white shadow-lg shadow-${item.key === "learn" ? "indigo" : item.key === "practice" ? "cyan" : item.key === "express" ? "rose" : "emerald"}-500/20 scale-105`
                     : "text-slate-400 hover:text-white hover:bg-slate-800"
                 }`}
               >
-                <span className="mr-0.5">⋯</span>
-                More
-                <svg
-                  className={`w-3.5 h-3.5 transition-transform duration-200 ${isMoreOpen ? "rotate-180" : ""}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                </svg>
+                <span>{item.icon}</span>
+                <span>{item.label}</span>
               </button>
+            ))}
 
-              {/* Dropdown Panel */}
-              {isMoreOpen && (
-                <div className="absolute right-0 top-full mt-2 w-52 bg-slate-800 rounded-xl border border-slate-700 shadow-2xl overflow-hidden animate-slide-down z-50">
-                  {moreItems.map((item) => (
-                    <button
-                      key={item.key}
-                      onClick={() => {
-                        item.onClick();
-                        setIsMoreOpen(false);
-                      }}
-                      className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-all ${
-                        isActive(item.key)
-                          ? "bg-blue-600 text-white"
-                          : "text-slate-300 hover:bg-slate-700 hover:text-white"
-                      }`}
-                    >
-                      <span className="text-lg">{item.icon}</span>
-                      <span className="font-semibold text-sm">{item.label}</span>
-                    </button>
-                  ))}
+            {/* Divider */}
+            <div className="w-px h-6 bg-slate-700 mx-1" />
 
-                  {/* Divider */}
-                  <div className="border-t border-slate-700" />
+            {/* Settings */}
+            <button
+              onClick={onShowSettings}
+              className={`p-2 rounded-lg transition-all duration-200 ${
+                isActive("settings")
+                  ? "bg-slate-700 text-white"
+                  : "text-slate-500 hover:text-white hover:bg-slate-800"
+              }`}
+              title="Settings"
+            >
+              ⚙️
+            </button>
 
-                  {/* Settings */}
-                  <button
-                    onClick={() => {
-                      onShowSettings();
-                      setIsMoreOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-all ${
-                      isActive("settings")
-                        ? "bg-blue-600 text-white"
-                        : "text-slate-300 hover:bg-slate-700 hover:text-white"
-                    }`}
-                  >
-                    <span className="text-lg">⚙️</span>
-                    <span className="font-semibold text-sm">Settings</span>
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* Theme Toggle */}
+            <button
+              onClick={onToggleTheme}
+              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition-all duration-200 border border-slate-700 hover:border-slate-600"
+              title={`Switch to ${theme === "light" ? "Dark" : "Light"} Mode`}
+            >
+              {theme === "light" ? "🌙" : "☀️"}
+            </button>
           </div>
 
           {/* Mobile Menu Button + Stats Preview */}
@@ -225,9 +164,9 @@ export const Navigation: React.FC<NavigationProps> = ({
 
         {/* Mobile Menu */}
         {isMobileOpen && (
-          <div className="lg:hidden pb-3 flex flex-col gap-1 animate-slide-down bg-slate-900 border-t border-slate-800">
+          <div className="lg:hidden pb-4 flex flex-col gap-2 animate-slide-down bg-slate-900 border-t border-slate-800">
             {/* Stats in mobile menu */}
-            <div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg mb-2 mx-1 border border-slate-800">
+            <div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg mb-1 mx-1 border border-slate-800">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-bold text-slate-200">Lvl {stats.level}</span>
                 <div className="w-24 h-2 bg-slate-700 rounded-full overflow-hidden">
@@ -245,22 +184,29 @@ export const Navigation: React.FC<NavigationProps> = ({
               </div>
             </div>
 
-            {/* All nav items on mobile */}
-            {allItems.map((item) => (
+            {/* Nav items as cards */}
+            {navItems.map((item) => (
               <button
                 key={item.key}
                 onClick={() => {
                   item.onClick();
                   setIsMobileOpen(false);
                 }}
-                className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all ${
+                className={`w-full text-left px-4 py-3.5 rounded-xl font-semibold transition-all mx-1 ${
                   isActive(item.key)
-                    ? "bg-blue-600 text-white shadow-md mx-1"
-                    : "text-slate-400 hover:bg-slate-800 hover:text-white mx-1"
+                    ? `bg-gradient-to-r ${item.gradient} text-white shadow-md`
+                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
                 }`}
               >
-                {item.icon && <span className="mr-2">{item.icon}</span>}
-                {item.label}
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">{item.icon}</span>
+                  <div>
+                    <span className="block text-sm font-bold">{item.label}</span>
+                    <span className={`block text-xs ${isActive(item.key) ? "text-white/70" : "text-slate-500"}`}>
+                      {item.sublabel}
+                    </span>
+                  </div>
+                </div>
               </button>
             ))}
 
@@ -270,10 +216,10 @@ export const Navigation: React.FC<NavigationProps> = ({
                 onShowSettings();
                 setIsMobileOpen(false);
               }}
-              className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all ${
+              className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all mx-1 ${
                 isActive("settings")
-                  ? "bg-blue-600 text-white shadow-md mx-1"
-                  : "text-slate-400 hover:bg-slate-800 hover:text-white mx-1"
+                  ? "bg-slate-700 text-white shadow-md"
+                  : "text-slate-400 hover:bg-slate-800 hover:text-white"
               }`}
             >
               <span className="mr-2">⚙️</span>

@@ -9,12 +9,126 @@ export type Category =
   | "Travel"
   | "Family"
   | "Clothing"
-  | "Verbs";
+  | "Verbs"
+  | "Work"
+  | "Gym"
+  | "Opinions"
+  | "Connectors"
+  | "Abstract"
+  | "Daily Routines";
 
 export interface Conjugation {
   pronoun: string;
   present: string;
   presentPhonetics?: string;
+}
+
+// ========================================
+// VERB TENSE SYSTEM (A2→B2)
+// ========================================
+
+export type VerbTense =
+  | "présent"
+  | "passé_composé"
+  | "imparfait"
+  | "futur_proche"
+  | "conditionnel"
+  | "subjonctif"
+  | "plus_que_parfait";
+
+export interface TenseConjugation {
+  pronoun: string;
+  form: string;
+  phonetics?: string;
+}
+
+export interface VerbTenseEntry {
+  id: string;
+  infinitive: string;
+  english: string;
+  tense: VerbTense;
+  cefr: CEFRLevel;
+  auxiliary?: "avoir" | "être"; // For compound tenses
+  isReflexive?: boolean;
+  conjugations: TenseConjugation[];
+  examples: { french: string; english: string }[];
+  commonMistakes?: string[];
+  rule?: string; // Brief explanation
+}
+
+export interface TenseModule {
+  tense: VerbTense;
+  displayName: string;
+  cefr: CEFRLevel;
+  description: string;
+  ruleExplanation: string;
+  verbs: VerbTenseEntry[];
+}
+
+// ========================================
+// CONVERSATION PRACTICE
+// ========================================
+
+export interface DialogueLine {
+  speaker: "system" | "user";
+  french: string;
+  english: string;
+  alternatives?: string[]; // Acceptable user responses
+  correction?: string; // Natural phrasing suggestion
+  difficulty: "easy" | "medium" | "hard";
+}
+
+export interface ConversationScenario {
+  id: string;
+  title: string;
+  titleFr: string;
+  description: string;
+  cefr: CEFRLevel;
+  category: string;
+  dialogue: DialogueLine[];
+  vocabularyHints: string[]; // Key words the user should know
+}
+
+// ========================================
+// ADAPTIVE QUIZ SYSTEM
+// ========================================
+
+export type AdaptiveQuestionType =
+  | "fill-blank"
+  | "translate-en-fr"
+  | "translate-fr-en"
+  | "error-correction"
+  | "listening";
+
+export interface AdaptiveQuestion {
+  id: string;
+  type: AdaptiveQuestionType;
+  prompt: string;
+  correctAnswer: string;
+  acceptableAnswers?: string[];
+  options?: string[]; // For MC variant
+  hint?: string;
+  explanation?: string;
+  cefr: CEFRLevel;
+  category?: Category;
+  tense?: VerbTense;
+}
+
+export interface ErrorPattern {
+  category: Category | string;
+  tense?: VerbTense;
+  errorCount: number;
+  lastErrorDate: number;
+  totalAttempts: number;
+}
+
+export interface AdaptiveState {
+  currentCEFR: CEFRLevel;
+  errorPatterns: Record<string, ErrorPattern>;
+  consecutiveCorrect: number;
+  consecutiveIncorrect: number;
+  questionsAnswered: number;
+  lastLevelUpDate?: number;
 }
 
 export interface VocabularyWord {
