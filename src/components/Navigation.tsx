@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { StreakDisplay } from "./StreakDisplay";
 import { XPDisplay } from "./XPDisplay";
 import type { UserStats } from "../types";

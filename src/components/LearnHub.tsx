@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { SRSStudy } from "./SRSStudy";
 import { StudyView } from "./StudyView";
 import { VerbTenseStudy } from "./VerbTenseStudy";
