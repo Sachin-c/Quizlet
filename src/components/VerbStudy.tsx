@@ -3,6 +3,8 @@ import type { VocabularyWord } from "../types";
 import { Flashcard } from "./Flashcard";
 import { SearchBar } from "./SearchBar";
 import { StorageManager } from "../utils/storage";
+import { getAllVerbEntries } from "../data/verbTenses";
+import type { VerbTenseEntry } from "../types";
 
 interface VerbStudyProps {
   allWords: VocabularyWord[];
@@ -14,12 +16,58 @@ export const VerbStudy: React.FC<VerbStudyProps> = ({ allWords }) => {
 
   // Filter only verbs and apply search
   const verbs = useMemo(() => {
-    const verbsOnly = allWords.filter((word) => word.isVerb);
-    if (searchTerm.trim() === "") return verbsOnly;
-    return verbsOnly.filter(
+    const vocabVerbs = allWords.filter((word) => word.isVerb);
+
+    // Group from verbTenses to create Reverso-style objects
+    const grouped = new Map<string, VerbTenseEntry[]>();
+    for (const entry of getAllVerbEntries()) {
+      if (!grouped.has(entry.infinitive)) {
+        grouped.set(entry.infinitive, []);
+      }
+      const tenseList = grouped.get(entry.infinitive)!;
+      // Prevent duplicate instances of the same tense
+      if (!tenseList.some((t) => t.tense === entry.tense)) {
+        tenseList.push(entry);
+      }
+    }
+
+    // Merge verb tenses with vocabulary verbs
+    const mergedVerbs = Array.from(grouped.entries()).map(([infinitive, entries]) => {
+      const existing = vocabVerbs.find((v) => v.french === infinitive);
+      return {
+        id: existing?.id || `verb-tense-${infinitive}`,
+        french: infinitive,
+        english: existing?.english || entries[0].english,
+        category: "Verbs",
+        cefr: entries[0].cefr,
+        isVerb: true,
+        createdAt: existing?.createdAt || Date.now(),
+        tenseEntries: entries,
+        conjugations: existing?.conjugations, // Fallback
+        exampleFrench: existing?.exampleFrench,
+        exampleEnglish: existing?.exampleEnglish,
+        imageUrl: existing?.imageUrl,
+      } as VocabularyWord;
+    });
+
+    // Add any vocabulary verbs that somehow aren't in the tense lists
+    for (const v of vocabVerbs) {
+      if (!mergedVerbs.some((m) => m.french === v.french)) {
+        mergedVerbs.push(v);
+      }
+    }
+
+    if (searchTerm.trim() === "") return mergedVerbs;
+
+    const normalize = (str: string) =>
+      str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    
+    const searchNormalized = normalize(searchTerm.trim());
+
+    return mergedVerbs.filter(
       (word) =>
-        word.french.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        word.english.toLowerCase().includes(searchTerm.toLowerCase())
+        normalize(word.french).includes(searchNormalized) ||
+        normalize(word.english).includes(searchNormalized)
     );
   }, [allWords, searchTerm]);
 

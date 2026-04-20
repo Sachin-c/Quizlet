@@ -96,7 +96,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({
 
       {/* Verb Conjugations - shown outside card for better visibility */}
       {word.isVerb && !isFlipped && (
-        <VerbConjugation conjugations={word.conjugations} />
+        <VerbConjugation conjugations={word.conjugations} tenseEntries={word.tenseEntries} />
       )}
 
       {/* Contextual Example Sentence - NEW! */}

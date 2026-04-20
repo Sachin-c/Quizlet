@@ -1,4 +1,17 @@
 import type { TenseModule, VerbTenseEntry } from "../types";
+import {
+  presentModule,
+  futurSimpleModule,
+  passeComposeAvoirExtra,
+  passeComposeEtreExtra
+} from "./additionalVerbs";
+import {
+  megaPresent,
+  megaFuturSimple,
+  megaImparfait,
+  megaPasseAvoir,
+  megaPasseEtre
+} from "./megaVerbs";
 
 // ================================================================
 // VERB TENSE SYSTEM — A2 → B2 PROGRESSION
@@ -743,6 +756,8 @@ const plusQueParfait: VerbTenseEntry[] = [
 // MODULE ASSEMBLY
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 export const tenseModules: TenseModule[] = [
+  { ...presentModule, verbs: [...presentModule.verbs, ...megaPresent] },
+  { ...futurSimpleModule, verbs: [...futurSimpleModule.verbs, ...megaFuturSimple] },
   {
     tense: "passé_composé",
     displayName: "Passé Composé (avoir)",
@@ -762,7 +777,7 @@ Many common verbs are irregular:
 
 Key: Use passé composé for SPECIFIC, COMPLETED events:
 "J'ai mangé une pomme" (I ate an apple — one specific event, done)`,
-    verbs: passeComposeAvoir,
+    verbs: [...passeComposeAvoir, ...passeComposeAvoirExtra, ...megaPasseAvoir],
   },
   {
     tense: "passé_composé",
@@ -783,7 +798,7 @@ CRITICAL: With être, the past participle AGREES with the subject:
 • Elles sont allées (feminine plural — add -es)
 
 All reflexive verbs also use être.`,
-    verbs: passeComposeEtre,
+    verbs: [...passeComposeEtre, ...passeComposeEtreExtra, ...megaPasseEtre],
   },
   {
     tense: "futur_proche",
@@ -829,7 +844,7 @@ Use imparfait for:
 VS Passé Composé:
 • PC = completed, specific: "J'ai mangé une pizza." (I ate a pizza)
 • IMP = ongoing, habitual: "Je mangeais souvent des pizzas." (I often ate pizzas)`,
-    verbs: imparfait,
+    verbs: [...imparfait, ...megaImparfait],
   },
   {
     tense: "passé_composé",

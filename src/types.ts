@@ -32,6 +32,7 @@ export type VerbTense =
   | "passé_composé"
   | "imparfait"
   | "futur_proche"
+  | "futur_simple"
   | "conditionnel"
   | "subjonctif"
   | "plus_que_parfait";
@@ -143,6 +144,7 @@ export interface VocabularyWord {
   createdAt: number;
   isVerb?: boolean;
   conjugations?: Conjugation[];
+  tenseEntries?: VerbTenseEntry[];
   exampleFrench?: string;
   exampleEnglish?: string;
 }
